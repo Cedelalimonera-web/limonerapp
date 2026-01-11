@@ -1,86 +1,111 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(180deg, #0f2a30, #0b1f24);
-  color: #fff;
+let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+function guardar() {
+  localStorage.setItem("insumos", JSON.stringify(insumos));
+  localStorage.setItem("movimientos", JSON.stringify(movimientos));
 }
 
-header {
-  padding: 20px;
-  text-align: center;
+function render() {
+  const lista = document.getElementById("lista-insumos");
+  const contador = document.getElementById("contador");
+  lista.innerHTML = "";
+  contador.textContent = insumos.length;
+
+  insumos.forEach((i, index) => {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <div>
+        <strong>${i.nombre}</strong>
+        <small>${i.cantidad} ${i.unidad}</small>
+      </div>
+      <div class="actions">
+        <button onclick="usarInsumo(${index})">➖</button>
+        <button onclick="ingresarInsumo(${index})">➕</button>
+        <button onclick="editarInsumo(${index})">✏️</button>
+        <button onclick="borrarInsumo(${index})">🗑️</button>
+      </div>
+    `;
+    lista.appendChild(li);
+  });
+
+  renderHistorial();
 }
 
-header h1 {
-  margin: 0;
-  font-size: 28px;
+function agregarInsumo() {
+  const nombre = prompt("Nombre del insumo:");
+  if (!nombre) return;
+
+  const cantidad = Number(prompt("Cantidad inicial:"));
+  const unidad = prompt("Unidad (kg, l, unid):", "kg");
+
+  insumos.push({ nombre, cantidad, unidad });
+  guardar();
+  render();
 }
 
-header p {
-  margin-top: 5px;
-  opacity: 0.8;
+function editarInsumo(i) {
+  const nuevoNombre = prompt("Nuevo nombre:", insumos[i].nombre);
+  const nuevaCantidad = Number(prompt("Nueva cantidad:", insumos[i].cantidad));
+  if (!nuevoNombre) return;
+
+  insumos[i].nombre = nuevoNombre;
+  insumos[i].cantidad = nuevaCantidad;
+  guardar();
+  render();
 }
 
-main {
-  padding: 15px;
+function borrarInsumo(i) {
+  if (!confirm("¿Eliminar insumo?")) return;
+  insumos.splice(i, 1);
+  guardar();
+  render();
 }
 
-.card {
-  background: #23444b;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
+function usarInsumo(i) {
+  const cant = Number(prompt("Cantidad usada:"));
+  if (!cant) return;
+
+  insumos[i].cantidad -= cant;
+  registrarMovimiento(insumos[i].nombre, -cant);
+  guardar();
+  render();
 }
 
-.card h2 {
-  margin-top: 0;
+function ingresarInsumo(i) {
+  const cant = Number(prompt("Cantidad ingresada:"));
+  if (!cant) return;
+
+  insumos[i].cantidad += cant;
+  registrarMovimiento(insumos[i].nombre, cant);
+  guardar();
+  render();
 }
 
-#contador {
-  font-size: 40px;
-  font-weight: bold;
-  color: #f5c84c;
-  margin-bottom: 10px;
+function registrarMovimiento(nombre, cantidad) {
+  movimientos.unshift({
+    fecha: new Date().toLocaleString(),
+    nombre,
+    cantidad
+  });
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+function renderHistorial() {
+  const h = document.getElementById("historial");
+  h.innerHTML = "";
+
+  movimientos.slice(0, 20).forEach(m => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <strong>${m.nombre}</strong>
+        <small>${m.fecha}</small>
+      </div>
+      <div>${m.cantidad > 0 ? "+" : ""}${m.cantidad}</div>
+    `;
+    h.appendChild(li);
+  });
 }
 
-li {
-  background: #1a343a;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-li small {
-  display: block;
-  opacity: 0.7;
-}
-
-button {
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.primary {
-  width: 100%;
-  background: #f5c84c;
-  color: #000;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.actions button {
-  margin-left: 6px;
-  background: #345e66;
-  color: #fff;
-}
+render();
