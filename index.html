@@ -4,178 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LimonerApp</title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #eef3e6;
-      color: #1f2937;
-    }
-
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    section {
-      padding: 16px;
-    }
-
-    h2 {
-      margin-top: 24px;
-      margin-bottom: 12px;
-      font-size: 22px;
-    }
-
-    button {
-      border: none;
-      border-radius: 20px;
-      padding: 10px 16px;
-      font-size: 16px;
-      cursor: pointer;
-      background: #d9f2c0;
-    }
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 14px;
-      margin-top: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .controls button {
-      margin: 0 4px;
-    }
-
-    .check {
-      background: #c8e6a0;
-      border-radius: 50%;
-      padding: 8px 12px;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 
-  <header>LimonerApp</header>
+  <header>
+    <h1>🍋 LimonerApp</h1>
+    <p>Control simple de insumos</p>
+  </header>
 
-  <section>
-    <h2>Insumos</h2>
-    <button onclick="agregarInsumo()">➕ Agregar insumo</button>
-    <div id="listaInsumos"></div>
-  </section>
+  <main>
+    <section class="add-insumo">
+      <input type="text" id="nombreInsumo" placeholder="Insumo (Ej: Urea)" />
+      <input type="number" id="cantidadInsumo" placeholder="Cantidad" />
+      <button onclick="agregarInsumo()">➕ Agregar</button>
+    </section>
 
-  <section>
-    <h2>Tareas</h2>
-    <button onclick="agregarTarea()">➕ Agregar tarea</button>
-    <div id="listaTareas"></div>
-  </section>
+    <section class="lista">
+      <ul id="listaInsumos"></ul>
+    </section>
+  </main>
 
-  <script>
-    let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
-    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-    function guardar() {
-      localStorage.setItem("insumos", JSON.stringify(insumos));
-      localStorage.setItem("tareas", JSON.stringify(tareas));
-    }
-
-    function renderInsumos() {
-      const contenedor = document.getElementById("listaInsumos");
-      contenedor.innerHTML = "";
-
-      insumos.forEach((i, index) => {
-        contenedor.innerHTML += `
-          <div class="card">
-            <strong>${i.nombre}</strong>
-            <div class="controls">
-              <button onclick="cambiarCantidad(${index}, -1)">−</button>
-              ${i.cantidad}
-              <button onclick="cambiarCantidad(${index}, 1)">+</button>
-              <button onclick="eliminarInsumo(${index})">🗑️</button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function agregarInsumo() {
-      const nombre = prompt("Nombre del insumo:");
-      if (!nombre) return;
-
-      insumos.push({
-        nombre: nombre,
-        cantidad: 0
-      });
-
-      guardar();
-      renderInsumos();
-    }
-
-    function cambiarCantidad(index, delta) {
-      insumos[index].cantidad += delta;
-      if (insumos[index].cantidad < 0) insumos[index].cantidad = 0;
-      guardar();
-      renderInsumos();
-    }
-
-    function eliminarInsumo(index) {
-      if (!confirm("¿Eliminar insumo?")) return;
-      insumos.splice(index, 1);
-      guardar();
-      renderInsumos();
-    }
-
-    function renderTareas() {
-      const contenedor = document.getElementById("listaTareas");
-      contenedor.innerHTML = "";
-
-      tareas.forEach((t, index) => {
-        contenedor.innerHTML += `
-          <div class="card">
-            <div>
-              <strong>${t.titulo}</strong><br />
-              ${t.fecha} · ${t.responsable}
-            </div>
-            <button class="check" onclick="eliminarTarea(${index})">✓</button>
-          </div>
-        `;
-      });
-    }
-
-    function agregarTarea() {
-      const titulo = prompt("Título de la tarea:");
-      if (!titulo) return;
-
-      const fecha = prompt("Fecha:");
-      const responsable = prompt("Responsable:");
-
-      tareas.push({
-        titulo: titulo,
-        fecha: fecha || "-",
-        responsable: responsable || "-"
-      });
-
-      guardar();
-      renderTareas();
-    }
-
-    function eliminarTarea(index) {
-      tareas.splice(index, 1);
-      guardar();
-      renderTareas();
-    }
-
-    renderInsumos();
-    renderTareas();
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
