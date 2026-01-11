@@ -2,118 +2,136 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LimonerApp</title>
+
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f2f2f7;
+      margin: 0;
       padding: 20px;
-      max-width: 600px;
-      margin: auto;
     }
-    h1, h2 {
-      margin-bottom: 10px;
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 4px;
     }
+
+    h2 {
+      margin-top: 24px;
+      font-size: 22px;
+    }
+
+    .subtitulo {
+      color: #555;
+      margin-bottom: 16px;
+    }
+
     button {
-      padding: 8px 12px;
-      margin: 5px 0;
+      background: #e5e5ea;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 16px;
       font-size: 16px;
+      cursor: pointer;
     }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin: 4px 0;
+
+    button:active {
+      opacity: 0.7;
+    }
+
+    .insumo-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+
+    .insumo-nombre {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .insumo-cantidad {
       font-size: 16px;
+      color: #333;
     }
-    .insumo {
-      border-bottom: 1px solid #ddd;
-      padding: 8px 0;
+
+    .insumo-fecha {
+      font-size: 14px;
+      color: #777;
+      margin-top: 4px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🍋 LimonerApp</h1>
-<p>Control de insumos y tareas</p>
+  <h1>🍋 LimonerApp</h1>
+  <div class="subtitulo">Control de insumos y tareas</div>
 
-<h2>Insumos de campo</h2>
-<button onclick="mostrarFormulario()">➕ Agregar insumo</button>
+  <h2>Insumos de campo</h2>
 
-<div id="listaInsumos"></div>
+  <button onclick="agregarInsumo()">➕ Agregar insumo</button>
 
-<h2>Nuevo insumo</h2>
-<div id="formulario" style="display:none;">
-  <input id="nombre" placeholder="Nombre del insumo">
-  <input id="cantidad" type="number" placeholder="Cantidad">
-  <input id="unidad" placeholder="Unidad (kg, lt, bolsas)">
-  <button onclick="guardarInsumo()">Guardar</button>
-  <button onclick="ocultarFormulario()">Cancelar</button>
-</div>
+  <div id="listaInsumos"></div>
 
-<script>
-function mostrarFormulario() {
-  document.getElementById("formulario").style.display = "block";
-}
+  <script>
+    function agregarInsumo() {
+      const nombre = prompt("Nombre del insumo:");
+      if (!nombre) return;
 
-function ocultarFormulario() {
-  document.getElementById("formulario").style.display = "none";
-  document.getElementById("nombre").value = "";
-  document.getElementById("cantidad").value = "";
-  document.getElementById("unidad").value = "";
-}
+      const cantidad = prompt("Cantidad:");
+      if (!cantidad) return;
 
-function obtenerInsumos() {
-  return JSON.parse(localStorage.getItem("insumos")) || [];
-}
+      const unidad = prompt("Unidad (Kg, L, Unid):") || "";
+      const fecha = prompt("Fecha (DD/MM/AAAA):") || "";
 
-function guardarInsumo() {
-  const nombre = document.getElementById("nombre").value;
-  const cantidad = document.getElementById("cantidad").value;
-  const unidad = document.getElementById("unidad").value;
+      const insumos = JSON.parse(localStorage.getItem("insumos")) || [];
 
-  if (!nombre || !cantidad || !unidad) {
-    alert("Completá todos los campos");
-    return;
-  }
+      insumos.push({
+        nombre,
+        cantidad,
+        unidad,
+        fecha
+      });
 
-  const insumos = obtenerInsumos();
-  insumos.push({
-    nombre,
-    cantidad,
-    unidad,
-    fecha: new Date().toLocaleDateString()
-  });
+      localStorage.setItem("insumos", JSON.stringify(insumos));
+      renderInsumos();
+    }
 
-  localStorage.setItem("insumos", JSON.stringify(insumos));
-  ocultarFormulario();
-  mostrarInsumos();
-}
+    function renderInsumos() {
+      const lista = document.getElementById("listaInsumos");
+      lista.innerHTML = "";
 
-function mostrarInsumos() {
-  const lista = document.getElementById("listaInsumos");
-  const insumos = obtenerInsumos();
-  lista.innerHTML = "";
+      const insumos = JSON.parse(localStorage.getItem("insumos")) || [];
 
-  if (insumos.length === 0) {
-    lista.innerHTML = "<p>No hay insumos cargados</p>";
-    return;
-  }
+      insumos.forEach(insumo => {
+        const unidad = insumo.unidad ? insumo.unidad : "";
+        const fecha = insumo.fecha ? `📅 ${insumo.fecha}` : "📅 sin fecha";
 
-  insumos.forEach(i => {
-    const div = document.createElement("div");
-    div.className = "insumo";
-    div.innerHTML = `
-      <strong>${i.nombre}</strong><br>
-      ${i.cantidad} ${i.unidad}<br>
-      <small>${i.fecha}</small>
-    `;
-    lista.appendChild(div);
-  });
-}
+        const div = document.createElement("div");
+        div.className = "insumo-card";
 
-mostrarInsumos();
-</script>
+        div.innerHTML = `
+          <div class="insumo-nombre">${insumo.nombre}</div>
+          <div class="insumo-cantidad">
+            ${insumo.cantidad} ${unidad}
+          </div>
+          <div class="insumo-fecha">
+            ${fecha}
+          </div>
+        `;
+
+        lista.appendChild(div);
+      });
+    }
+
+    renderInsumos();
+  </script>
 
 </body>
 </html>
