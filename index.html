@@ -1,178 +1,204 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LimonerApp</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LimonerApp</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-      background: linear-gradient(180deg, #f3f5f1, #e6efe3);
-      color: #222;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Roboto;
+  background: linear-gradient(180deg,#f2f5f0,#e3efe2);
+}
 
-    .app {
-      max-width: 420px;
-      margin: auto;
-      padding: 20px;
-    }
+.app {
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
 
-    h1 {
-      margin-top: 10px;
-      font-size: 28px;
-    }
+h1 { font-size: 28px; margin-bottom: 5px; }
+.sub { color:#666; margin-bottom:20px; }
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 25px;
-    }
+section { margin-top:30px; }
 
-    h2 {
-      margin-top: 30px;
-      font-size: 20px;
-    }
+button {
+  border:none;
+  border-radius:20px;
+  padding:10px 14px;
+  font-size:15px;
+  cursor:pointer;
+}
 
-    button {
-      border: none;
-      background: #e9efe4;
-      color: #2d6a4f;
-      padding: 10px 16px;
-      border-radius: 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+.primary { background:#2d6a4f; color:white; }
+.secondary { background:#e9efe4; color:#2d6a4f; }
 
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 15px;
-      margin-top: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
+.card {
+  background:white;
+  border-radius:16px;
+  padding:14px;
+  margin-top:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
 
-    .name {
-      font-weight: 600;
-      font-size: 18px;
-    }
+.row { display:flex; justify-content:space-between; align-items:center; }
+.small { font-size:14px; color:#666; }
 
-    .qty {
-      margin-top: 6px;
-      font-size: 16px;
-    }
+.actions button {
+  margin-left:6px;
+  font-size:13px;
+}
 
-    .date {
-      margin-top: 6px;
-      font-size: 14px;
-      color: #777;
-    }
+.modal {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
+.modal-box {
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  width:90%;
+}
 
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 340px;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
-    }
-  </style>
+input {
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+</style>
 </head>
 
 <body>
-  <div class="app">
-    <h1>🍋 LimonerApp</h1>
-    <div class="subtitle">Control de insumos y tareas</div>
+<div class="app">
+  <h1>🍋 LimonerApp</h1>
+  <div class="sub">Control simple de campo</div>
 
-    <h2>Insumos de campo</h2>
-    <button onclick="openModal()">➕ Agregar insumo</button>
+  <section>
+    <h2>Insumos</h2>
+    <button class="secondary" onclick="openInsumo()">➕ Agregar insumo</button>
+    <div id="insumos"></div>
+  </section>
 
-    <div id="list"></div>
-  </div>
+  <section>
+    <h2>Tareas</h2>
+    <button class="secondary" onclick="openTarea()">➕ Agregar tarea</button>
+    <div id="tareas"></div>
+  </section>
+</div>
 
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h3>Nuevo insumo</h3>
-      <input id="name" placeholder="Nombre del insumo">
-      <input id="qty" placeholder="Cantidad (kg, lts, unid)">
-      <input id="date" type="date">
-
-      <div class="actions">
-        <button onclick="closeModal()">Cancelar</button>
-        <button onclick="save()">Guardar</button>
-      </div>
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <input id="m1" placeholder="">
+    <input id="m2" placeholder="">
+    <div class="row" style="margin-top:15px">
+      <button onclick="closeModal()">Cancelar</button>
+      <button class="primary" onclick="saveModal()">Guardar</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const list = document.getElementById("list");
-    const modal = document.getElementById("modal");
+<script>
+let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+let mode = "";
 
-    let items = JSON.parse(localStorage.getItem("insumos")) || [];
+const modal = document.getElementById("modal");
 
-    function render() {
-      list.innerHTML = "";
-      items.forEach(i => {
-        list.innerHTML += `
-          <div class="card">
-            <div class="name">${i.name}</div>
-            <div class="qty">${i.qty}</div>
-            <div class="date">📅 ${i.date || "sin fecha"}</div>
-          </div>
-        `;
-      });
-      localStorage.setItem("insumos", JSON.stringify(items));
-    }
+function render() {
+  const iDiv = document.getElementById("insumos");
+  const tDiv = document.getElementById("tareas");
+  iDiv.innerHTML = "";
+  tDiv.innerHTML = "";
 
-    function openModal() {
-      modal.style.display = "flex";
-    }
+  insumos.forEach((i,idx)=>{
+    iDiv.innerHTML += `
+    <div class="card">
+      <div class="row">
+        <strong>${i.nombre}</strong>
+        <span>${i.stock}</span>
+      </div>
+      <div class="actions">
+        <button onclick="usar(${idx})">➖ Usar</button>
+        <button onclick="borrarInsumo(${idx})">🗑️</button>
+      </div>
+    </div>`;
+  });
 
-    function closeModal() {
-      modal.style.display = "none";
-    }
+  tareas.forEach((t,idx)=>{
+    tDiv.innerHTML += `
+    <div class="card">
+      <div class="row">
+        <span>${t}</span>
+        <button onclick="borrarTarea(${idx})">✔</button>
+      </div>
+    </div>`;
+  });
 
-    function save() {
-      const name = document.getElementById("name").value;
-      const qty = document.getElementById("qty").value;
-      const date = document.getElementById("date").value;
+  localStorage.setItem("insumos",JSON.stringify(insumos));
+  localStorage.setItem("tareas",JSON.stringify(tareas));
+}
 
-      if (!name || !qty) return;
+function openInsumo(){
+  mode="insumo";
+  modal.style.display="flex";
+  modalTitle.innerText="Nuevo insumo";
+  m1.placeholder="Nombre";
+  m2.placeholder="Cantidad";
+}
 
-      items.push({ name, qty, date });
-      closeModal();
-      render();
+function openTarea(){
+  mode="tarea";
+  modal.style.display="flex";
+  modalTitle.innerText="Nueva tarea";
+  m1.placeholder="Descripción";
+  m2.style.display="none";
+}
 
-      document.getElementById("name").value = "";
-      document.getElementById("qty").value = "";
-      document.getElementById("date").value = "";
-    }
+function closeModal(){
+  modal.style.display="none";
+  m1.value=""; m2.value="";
+  m2.style.display="block";
+}
 
-    render();
-  </script>
+function saveModal(){
+  if(mode==="insumo"){
+    insumos.push({nombre:m1.value,stock:Number(m2.value)});
+  }
+  if(mode==="tarea"){
+    tareas.push(m1.value);
+  }
+  closeModal();
+  render();
+}
+
+function usar(i){
+  const cant = prompt("Cantidad usada:");
+  if(!cant) return;
+  insumos[i].stock -= Number(cant);
+  render();
+}
+
+function borrarInsumo(i){
+  insumos.splice(i,1);
+  render();
+}
+
+function borrarTarea(i){
+  tareas.splice(i,1);
+  render();
+}
+
+render();
+</script>
 </body>
 </html>
