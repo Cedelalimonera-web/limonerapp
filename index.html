@@ -47,10 +47,24 @@
       color: #e6f4f7;
     }
 
-    .card .value {
+    .value {
       font-size: 42px;
       color: #f5c84c;
       margin-top: 10px;
+    }
+
+    .list {
+      margin-top: 14px;
+    }
+
+    .item {
+      background: #1b3a42;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
     }
 
     button {
@@ -81,10 +95,6 @@
       border: 1px solid #ccc;
       font-size: 14px;
     }
-
-    dialog button {
-      margin-top: 12px;
-    }
   </style>
 </head>
 
@@ -100,12 +110,10 @@
   <div class="card">
     <h2>Insumos de campo</h2>
     <div class="value" id="totalInsumos">0</div>
-    <button onclick="abrirInsumo()">➕ Agregar insumo</button>
-  </div>
 
-  <div class="card">
-    <h2>Tareas</h2>
-    <div class="value">0</div>
+    <div class="list" id="listaInsumos"></div>
+
+    <button onclick="abrirInsumo()">➕ Agregar insumo</button>
   </div>
 
 </div>
@@ -120,8 +128,18 @@
 <script>
   let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
 
-  function actualizarTotal() {
+  function actualizarVista() {
     document.getElementById("totalInsumos").innerText = insumos.length;
+
+    const lista = document.getElementById("listaInsumos");
+    lista.innerHTML = "";
+
+    insumos.forEach(i => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `<span>${i.nombre}</span><strong>${i.cantidad}</strong>`;
+      lista.appendChild(div);
+    });
   }
 
   function abrirInsumo() {
@@ -141,10 +159,10 @@
     document.getElementById("nombreInsumo").value = "";
     document.getElementById("cantidadInsumo").value = "";
 
-    actualizarTotal();
+    actualizarVista();
   }
 
-  actualizarTotal();
+  actualizarVista();
 </script>
 
 </body>
