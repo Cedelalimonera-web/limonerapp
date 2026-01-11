@@ -1,65 +1,68 @@
-let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
-let historial = JSON.parse(localStorage.getItem("historial")) || [];
+let insumos = JSON.parse(localStorage.getItem("limonerapp_insumos")) || [];
 
-const list = document.getElementById("insumosList");
-const histList = document.getElementById("historialList");
-
-const modal = document.getElementById("modal");
-document.getElementById("addBtn").onclick = () => modal.classList.remove("hidden");
-document.getElementById("cancelar").onclick = () => modal.classList.add("hidden");
-
-document.getElementById("guardar").onclick = () => {
-  const nombre = document.getElementById("nombre").value;
-  const cantidad = Number(document.getElementById("cantidad").value);
-  const unidad = document.getElementById("unidad").value;
-
-  if (!nombre || !cantidad) return;
-
-  insumos.push({ nombre, cantidad, unidad });
-  historial.unshift(`${new Date().toLocaleString()} ➜ Alta de ${nombre}: ${cantidad} ${unidad}`);
-
-  guardar();
-  modal.classList.add("hidden");
-  document.getElementById("nombre").value = "";
-  document.getElementById("cantidad").value = "";
-  document.getElementById("unidad").value = "";
-
-  render();
-};
-
-function modificar(index, delta) {
-  insumos[index].cantidad += delta;
-  historial.unshift(
-    `${new Date().toLocaleString()} ➜ ${delta > 0 ? "Ingreso" : "Uso"} de ${insumos[index].nombre}: ${Math.abs(delta)} ${insumos[index].unidad}`
-  );
-  guardar();
-  render();
+function guardar() {
+  localStorage.setItem("limonerapp_insumos", JSON.stringify(insumos));
 }
 
 function render() {
-  list.innerHTML = "";
-  insumos.forEach((i, index) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${i.nombre}</strong><br>
-      Stock: ${i.cantidad} ${i.unidad}<br>
-      <button onclick="modificar(${index}, 1)">+1</button>
-      <button onclick="modificar(${index}, -1)">-1</button>
-    `;
-    list.appendChild(li);
-  });
+  const lista = document.getElementById("listaInsumos");
+  lista.innerHTML = "";
 
-  histList.innerHTML = "";
-  historial.slice(0, 20).forEach(h => {
+  insumos.forEach((insumo, index) => {
     const li = document.createElement("li");
-    li.textContent = h;
-    histList.appendChild(li);
+    li.className = "insumo";
+
+    li.innerHTML = `
+      <div>
+        <div class="insumo-nombre">${insumo.nombre}</div>
+        <div>Stock: ${insumo.cantidad}</div>
+      </div>
+      <div class="controles">
+        <button onclick="sumar(${index})">➕</button>
+        <button onclick="restar(${index})">➖</button>
+        <button onclick="eliminar(${index})">🗑</button>
+      </div>
+    `;
+
+    lista.appendChild(li);
   });
 }
 
-function guardar() {
-  localStorage.setItem("insumos", JSON.stringify(insumos));
-  localStorage.setItem("historial", JSON.stringify(historial));
+function agregarInsumo() {
+  const nombre = document.getElementById("nombreInsumo").value.trim();
+  const cantidad = parseInt(document.getElementById("cantidadInsumo").value);
+
+  if (!nombre || isNaN(cantidad)) return;
+
+  insumos.push({ nombre, cantidad });
+  guardar();
+  render();
+
+  document.getElementById("nombreInsumo").value = "";
+  document.getElementById("cantidadInsumo").value = "";
+}
+
+function sumar(index) {
+  insumos[index].cantidad++;
+  guardar();
+  render();
+}
+
+function restar(index) {
+  if (insumos[index].cantidad > 0) {
+    insumos[index].cantidad--;
+    guardar();
+    render();
+  }
+}
+
+function eliminar(index) {
+  const ok = confirm("¿Eliminar este insumo?");
+  if (!ok) return;
+
+  insumos.splice(index, 1);
+  guardar();
+  render();
 }
 
 render();
