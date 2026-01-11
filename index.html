@@ -2,136 +2,177 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LimonerApp</title>
 
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f2f2f7;
       margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+      background: linear-gradient(180deg, #f3f5f1, #e6efe3);
+      color: #222;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: auto;
       padding: 20px;
     }
 
     h1 {
+      margin-top: 10px;
       font-size: 28px;
-      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 25px;
     }
 
     h2 {
-      margin-top: 24px;
-      font-size: 22px;
-    }
-
-    .subtitulo {
-      color: #555;
-      margin-bottom: 16px;
+      margin-top: 30px;
+      font-size: 20px;
     }
 
     button {
-      background: #e5e5ea;
       border: none;
-      border-radius: 20px;
+      background: #e9efe4;
+      color: #2d6a4f;
       padding: 10px 16px;
+      border-radius: 20px;
       font-size: 16px;
       cursor: pointer;
     }
 
-    button:active {
-      opacity: 0.7;
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 15px;
+      margin-top: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
-    .insumo-card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-    }
-
-    .insumo-nombre {
+    .name {
+      font-weight: 600;
       font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
     }
 
-    .insumo-cantidad {
+    .qty {
+      margin-top: 6px;
       font-size: 16px;
-      color: #333;
     }
 
-    .insumo-fecha {
+    .date {
+      margin-top: 6px;
       font-size: 14px;
       color: #777;
-      margin-top: 4px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 340px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
     }
   </style>
 </head>
 
 <body>
+  <div class="app">
+    <h1>🍋 LimonerApp</h1>
+    <div class="subtitle">Control de insumos y tareas</div>
 
-  <h1>🍋 LimonerApp</h1>
-  <div class="subtitulo">Control de insumos y tareas</div>
+    <h2>Insumos de campo</h2>
+    <button onclick="openModal()">➕ Agregar insumo</button>
 
-  <h2>Insumos de campo</h2>
+    <div id="list"></div>
+  </div>
 
-  <button onclick="agregarInsumo()">➕ Agregar insumo</button>
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h3>Nuevo insumo</h3>
+      <input id="name" placeholder="Nombre del insumo">
+      <input id="qty" placeholder="Cantidad (kg, lts, unid)">
+      <input id="date" type="date">
 
-  <div id="listaInsumos"></div>
+      <div class="actions">
+        <button onclick="closeModal()">Cancelar</button>
+        <button onclick="save()">Guardar</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    function agregarInsumo() {
-      const nombre = prompt("Nombre del insumo:");
-      if (!nombre) return;
+    const list = document.getElementById("list");
+    const modal = document.getElementById("modal");
 
-      const cantidad = prompt("Cantidad:");
-      if (!cantidad) return;
+    let items = JSON.parse(localStorage.getItem("insumos")) || [];
 
-      const unidad = prompt("Unidad (Kg, L, Unid):") || "";
-      const fecha = prompt("Fecha (DD/MM/AAAA):") || "";
-
-      const insumos = JSON.parse(localStorage.getItem("insumos")) || [];
-
-      insumos.push({
-        nombre,
-        cantidad,
-        unidad,
-        fecha
-      });
-
-      localStorage.setItem("insumos", JSON.stringify(insumos));
-      renderInsumos();
-    }
-
-    function renderInsumos() {
-      const lista = document.getElementById("listaInsumos");
-      lista.innerHTML = "";
-
-      const insumos = JSON.parse(localStorage.getItem("insumos")) || [];
-
-      insumos.forEach(insumo => {
-        const unidad = insumo.unidad ? insumo.unidad : "";
-        const fecha = insumo.fecha ? `📅 ${insumo.fecha}` : "📅 sin fecha";
-
-        const div = document.createElement("div");
-        div.className = "insumo-card";
-
-        div.innerHTML = `
-          <div class="insumo-nombre">${insumo.nombre}</div>
-          <div class="insumo-cantidad">
-            ${insumo.cantidad} ${unidad}
-          </div>
-          <div class="insumo-fecha">
-            ${fecha}
+    function render() {
+      list.innerHTML = "";
+      items.forEach(i => {
+        list.innerHTML += `
+          <div class="card">
+            <div class="name">${i.name}</div>
+            <div class="qty">${i.qty}</div>
+            <div class="date">📅 ${i.date || "sin fecha"}</div>
           </div>
         `;
-
-        lista.appendChild(div);
       });
+      localStorage.setItem("insumos", JSON.stringify(items));
     }
 
-    renderInsumos();
-  </script>
+    function openModal() {
+      modal.style.display = "flex";
+    }
 
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    function save() {
+      const name = document.getElementById("name").value;
+      const qty = document.getElementById("qty").value;
+      const date = document.getElementById("date").value;
+
+      if (!name || !qty) return;
+
+      items.push({ name, qty, date });
+      closeModal();
+      render();
+
+      document.getElementById("name").value = "";
+      document.getElementById("qty").value = "";
+      document.getElementById("date").value = "";
+    }
+
+    render();
+  </script>
 </body>
 </html>
