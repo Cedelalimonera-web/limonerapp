@@ -1,32 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LimonerApp</title>
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header>
-    <h1>🍋 LimonerApp</h1>
-    <p>Control de insumos y tareas</p>
-  </header>
+  <h1>🍋 LimonerApp</h1>
+  <p>Control de insumos y tareas</p>
 
-  <main>
-    <section class="card">
-      <h2>Insumos de campo</h2>
-      <div id="contador"></div>
-      <ul id="lista-insumos"></ul>
-      <button class="primary" onclick="agregarInsumo()">➕ Agregar insumo</button>
-    </section>
+  <h2>Insumos de campo</h2>
+  <button id="addBtn">➕ Agregar insumo</button>
 
-    <section class="card">
-      <h2>Historial</h2>
-      <ul id="historial"></ul>
-    </section>
-  </main>
+  <ul id="insumosList"></ul>
+
+  <h2>Historial</h2>
+  <ul id="historialList"></ul>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Nuevo insumo</h3>
+      <input id="nombre" placeholder="Nombre del insumo">
+      <input id="cantidad" type="number" placeholder="Cantidad">
+      <input id="unidad" placeholder="Unidad (kg, lt, bolsas)">
+      <button id="guardar">Guardar</button>
+      <button id="cancelar">Cancelar</button>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
