@@ -1,32 +1,152 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LimonerApp</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LimonerApp</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #0f2a32, #183c46);
+      color: #fff;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 16px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin-top: 6px;
+      color: #b6d2da;
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 420px;
+      margin: auto;
+    }
+
+    .card {
+      background: #244851;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #e6f4f7;
+    }
+
+    .card .value {
+      font-size: 42px;
+      color: #f5c84c;
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: #f5c84c;
+      color: #1f2d32;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    dialog {
+      border: none;
+      border-radius: 16px;
+      padding: 20px;
+      width: 90%;
+      max-width: 320px;
+    }
+
+    dialog input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    dialog button {
+      margin-top: 12px;
+    }
+  </style>
 </head>
+
 <body>
 
-    <header class="header">
-        <h1>🍋 LimonerApp</h1>
-        <p>Control de insumos y tareas</p>
-    </header>
+<header>
+  <h1>🍋 LimonerApp</h1>
+  <p>Control de insumos y tareas</p>
+</header>
 
-    <main class="container">
-        <div class="card">
-            <h2>Insumos de campo</h2>
-            <p>Total disponibles</p>
-            <span class="big-number">0</span>
-        </div>
+<div class="container">
 
-        <div class="card">
-            <h2>Tareas</h2>
-            <p>Registradas</p>
-            <span class="big-number">0</span>
-        </div>
-    </main>
+  <div class="card">
+    <h2>Insumos de campo</h2>
+    <div class="value" id="totalInsumos">0</div>
+    <button onclick="abrirInsumo()">➕ Agregar insumo</button>
+  </div>
 
-    <script src="app.js"></script>
+  <div class="card">
+    <h2>Tareas</h2>
+    <div class="value">0</div>
+  </div>
+
+</div>
+
+<dialog id="modalInsumo">
+  <h3>Nuevo insumo</h3>
+  <input id="nombreInsumo" placeholder="Nombre del insumo"/>
+  <input id="cantidadInsumo" type="number" placeholder="Cantidad"/>
+  <button onclick="guardarInsumo()">Guardar</button>
+</dialog>
+
+<script>
+  let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+
+  function actualizarTotal() {
+    document.getElementById("totalInsumos").innerText = insumos.length;
+  }
+
+  function abrirInsumo() {
+    document.getElementById("modalInsumo").showModal();
+  }
+
+  function guardarInsumo() {
+    const nombre = document.getElementById("nombreInsumo").value;
+    const cantidad = document.getElementById("cantidadInsumo").value;
+
+    if (!nombre || !cantidad) return;
+
+    insumos.push({ nombre, cantidad });
+    localStorage.setItem("insumos", JSON.stringify(insumos));
+
+    document.getElementById("modalInsumo").close();
+    document.getElementById("nombreInsumo").value = "";
+    document.getElementById("cantidadInsumo").value = "";
+
+    actualizarTotal();
+  }
+
+  actualizarTotal();
+</script>
+
 </body>
 </html>
+
