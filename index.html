@@ -1,140 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LimonerApp</title>
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+      margin: 0;
+      background: #eef4ea;
+      color: #1b1b1b;
+    }
+
+    header {
+      padding: 16px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    section {
+      padding: 16px;
+    }
+
+    h2 {
+      margin-top: 24px;
+    }
+
+    button {
+      border: none;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      background: #e3efdf;
+      color: #2e7d32;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .use-btn {
+      background: #e0e0e0;
+      color: #1565c0;
+    }
+
+    .delete-btn {
+      background: #f0f0f0;
+    }
+
+    .task-done {
+      text-decoration: line-through;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>LimonerApp</header>
+
+<section>
+  <h2>Insumos</h2>
+  <button class="add-btn" onclick="agregarInsumo()">➕ Agregar insumo</button>
+  <div id="listaInsumos"></div>
+
+  <h2>Tareas</h2>
+  <button class="add-btn" onclick="agregarTarea()">➕ Agregar tarea</button>
+  <div id="listaTareas"></div>
+</section>
+
 <script>
-/* ========= INSUMOS ========= */
-let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+  // ------------------------
+  // DATOS
+  // ------------------------
+  let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+  let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
 
-insumos = insumos.filter(i => i && i.nombre);
-insumos = insumos.map(i => ({
-  nombre: i.nombre,
-  stock: Number(i.stock) || 0
-}));
-localStorage.setItem("insumos", JSON.stringify(insumos));
-
-function renderInsumos() {
-  const lista = document.getElementById("listaInsumos");
-  lista.innerHTML = "";
-
-  insumos.forEach((insumo, index) => {
-    lista.innerHTML += `
-      <div class="card">
-        <strong>${insumo.nombre}</strong>
-        <span>${insumo.stock}</span>
-        <div class="acciones">
-          <button onclick="usarInsumo(${index})">− Usar</button>
-          <button onclick="eliminarInsumo(${index})">🗑️</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function agregarInsumo() {
-  const nombre = prompt("Nombre del insumo:");
-  if (!nombre) return;
-
-  const stock = Number(prompt("Stock inicial:")) || 0;
-  insumos.push({ nombre, stock });
-
-  localStorage.setItem("insumos", JSON.stringify(insumos));
-  renderInsumos();
-}
-
-function usarInsumo(index) {
-  if (insumos[index].stock > 0) {
-    insumos[index].stock--;
+  // ------------------------
+  // INSUMOS
+  // ------------------------
+  function guardarInsumos() {
     localStorage.setItem("insumos", JSON.stringify(insumos));
+  }
+
+  function renderInsumos() {
+    const contenedor = document.getElementById("listaInsumos");
+    contenedor.innerHTML = "";
+
+    insumos.forEach((insumo, index) => {
+      const cantidad = insumo.cantidad ?? 0;
+
+      contenedor.innerHTML += `
+        <div class="card">
+          <div>
+            <strong>${insumo.nombre}</strong>
+          </div>
+          <div class="actions">
+            <span>${cantidad}</span>
+            <button class="use-btn" onclick="usarInsumo(${index})">➖ Usar</button>
+            <button class="delete-btn" onclick="eliminarInsumo(${index})">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function agregarInsumo() {
+    const nombre = prompt("Nombre del insumo:");
+    if (!nombre) return;
+
+    insumos.push({
+      nombre: nombre,
+      cantidad: 0
+    });
+
+    guardarInsumos();
     renderInsumos();
   }
-}
 
-function eliminarInsumo(index) {
-  if (confirm("¿Eliminar insumo?")) {
-    insumos.splice(index, 1);
-    localStorage.setItem("insumos", JSON.stringify(insumos));
-    renderInsumos();
-  }
-}
-
-/* ========= TAREAS ========= */
-let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-function renderTareas() {
-  const lista = document.getElementById("listaTareas");
-  lista.innerHTML = "";
-
-  tareas.forEach((t, index) => {
-    lista.innerHTML += `
-      <div class="card">
-        <strong style="text-decoration:${t.hecha ? 'line-through' : 'none'}">
-          ${t.texto}
-        </strong>
-        <small>
-          ${t.insumo ? `→ ${t.insumo} (${t.cantidad})` : ""}
-        </small>
-        <div class="acciones">
-          <button onclick="toggleTarea(${index})">
-            ${t.hecha ? '↩️' : '✅'}
-          </button>
-          <button onclick="eliminarTarea(${index})">🗑️</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function agregarTarea() {
-  const texto = prompt("Descripción de la tarea:");
-  if (!texto) return;
-
-  let insumo = null;
-  let cantidad = 0;
-
-  if (insumos.length > 0 && confirm("¿Esta tarea usa insumos?")) {
-    const nombres = insumos.map(i => i.nombre).join(", ");
-    insumo = prompt("Insumo a usar:\n" + nombres);
-    cantidad = Number(prompt("Cantidad a usar:")) || 0;
-  }
-
-  tareas.push({
-    texto,
-    hecha: false,
-    insumo,
-    cantidad
-  });
-
-  localStorage.setItem("tareas", JSON.stringify(tareas));
-  renderTareas();
-}
-
-function toggleTarea(index) {
-  const tarea = tareas[index];
-
-  if (!tarea.hecha && tarea.insumo && tarea.cantidad > 0) {
-    const insumo = insumos.find(i => i.nombre === tarea.insumo);
-    if (insumo) {
-      if (insumo.stock < tarea.cantidad) {
-        alert("Stock insuficiente");
-        return;
-      }
-      insumo.stock -= tarea.cantidad;
+  function usarInsumo(index) {
+    if (insumos[index].cantidad > 0) {
+      insumos[index].cantidad -= 1;
+      guardarInsumos();
+      renderInsumos();
+    } else {
+      alert("No hay stock disponible");
     }
   }
 
-  tarea.hecha = !tarea.hecha;
-  localStorage.setItem("insumos", JSON.stringify(insumos));
-  localStorage.setItem("tareas", JSON.stringify(tareas));
-  renderInsumos();
-  renderTareas();
-}
+  function eliminarInsumo(index) {
+    insumos.splice(index, 1);
+    guardarInsumos();
+    renderInsumos();
+  }
 
-function eliminarTarea(index) {
-  if (confirm("¿Eliminar tarea?")) {
-    tareas.splice(index, 1);
+  // ------------------------
+  // TAREAS
+  // ------------------------
+  function guardarTareas() {
     localStorage.setItem("tareas", JSON.stringify(tareas));
+  }
+
+  function renderTareas() {
+    const contenedor = document.getElementById("listaTareas");
+    contenedor.innerHTML = "";
+
+    tareas.forEach((tarea, index) => {
+      contenedor.innerHTML += `
+        <div class="card">
+          <span class="${tarea.hecha ? "task-done" : ""}">
+            ${tarea.nombre}
+          </span>
+          <button onclick="toggleTarea(${index})">✔</button>
+        </div>
+      `;
+    });
+  }
+
+  function agregarTarea() {
+    const nombre = prompt("Nombre de la tarea:");
+    if (!nombre) return;
+
+    tareas.push({
+      nombre: nombre,
+      hecha: false
+    });
+
+    guardarTareas();
     renderTareas();
   }
-}
 
-/* ========= INIT ========= */
-renderInsumos();
-renderTareas();
+  function toggleTarea(index) {
+    tareas[index].hecha = !tareas[index].hecha;
+    guardarTareas();
+    renderTareas();
+  }
+
+  // ------------------------
+  // INIT
+  // ------------------------
+  renderInsumos();
+  renderTareas();
 </script>
+
+</body>
+</html>
