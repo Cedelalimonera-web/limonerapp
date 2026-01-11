@@ -2,21 +2,21 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LimonerApp</title>
 
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
       margin: 0;
-      background: #eef4ea;
-      color: #1b1b1b;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #eef3e8;
+      color: #1f2937;
     }
 
     header {
-      padding: 16px;
       text-align: center;
-      font-size: 22px;
+      padding: 20px;
+      font-size: 26px;
       font-weight: bold;
     }
 
@@ -25,25 +25,23 @@
     }
 
     h2 {
-      margin-top: 24px;
-    }
-
-    button {
-      border: none;
-      border-radius: 20px;
-      padding: 8px 14px;
-      font-size: 16px;
-      cursor: pointer;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
 
     .add-btn {
-      background: #e3efdf;
-      color: #2e7d32;
-      margin-bottom: 12px;
+      background: #e3f3d9;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 16px;
+      color: #256d1b;
+      cursor: pointer;
+      margin-bottom: 10px;
     }
 
     .card {
-      background: #ffffff;
+      background: white;
       border-radius: 16px;
       padding: 12px;
       margin-bottom: 10px;
@@ -52,75 +50,103 @@
       align-items: center;
     }
 
-    .actions {
+    .left {
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+    }
+
+    .right {
+      display: flex;
       align-items: center;
+      gap: 10px;
     }
 
     .use-btn {
-      background: #e0e0e0;
-      color: #1565c0;
+      background: #e5e7eb;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
     }
 
     .delete-btn {
-      background: #f0f0f0;
+      background: #f3f4f6;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
     }
 
-    .task-done {
-      text-decoration: line-through;
-      color: #777;
+    input {
+      padding: 8px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 
 <body>
 
-<header>LimonerApp</header>
+  <header>LimonerApp</header>
 
-<section>
-  <h2>Insumos</h2>
-  <button class="add-btn" onclick="agregarInsumo()">➕ Agregar insumo</button>
-  <div id="listaInsumos"></div>
+  <section>
+    <h2>Insumos</h2>
+    <button class="add-btn" onclick="agregarInsumo()">➕ Agregar insumo</button>
+    <div id="insumos"></div>
+  </section>
 
-  <h2>Tareas</h2>
-  <button class="add-btn" onclick="agregarTarea()">➕ Agregar tarea</button>
-  <div id="listaTareas"></div>
-</section>
+  <section>
+    <h2>Tareas</h2>
+    <button class="add-btn" onclick="agregarTarea()">➕ Agregar tarea</button>
+    <div id="tareas"></div>
+  </section>
 
 <script>
-  // ------------------------
-  // DATOS
-  // ------------------------
   let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
   let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
 
-  // ------------------------
-  // INSUMOS
-  // ------------------------
-  function guardarInsumos() {
+  function guardar() {
     localStorage.setItem("insumos", JSON.stringify(insumos));
+    localStorage.setItem("tareas", JSON.stringify(tareas));
   }
 
-  function renderInsumos() {
-    const contenedor = document.getElementById("listaInsumos");
-    contenedor.innerHTML = "";
+  function render() {
+    const insumosDiv = document.getElementById("insumos");
+    insumosDiv.innerHTML = "";
 
-    insumos.forEach((insumo, index) => {
-      const cantidad = insumo.cantidad ?? 0;
+    insumos.forEach((i, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
 
-      contenedor.innerHTML += `
-        <div class="card">
-          <div>
-            <strong>${insumo.nombre}</strong>
-          </div>
-          <div class="actions">
-            <span>${cantidad}</span>
-            <button class="use-btn" onclick="usarInsumo(${index})">➖ Usar</button>
-            <button class="delete-btn" onclick="eliminarInsumo(${index})">🗑️</button>
-          </div>
+      card.innerHTML = `
+        <div class="left">
+          <strong>${i.nombre}</strong>
+        </div>
+        <div class="right">
+          <span>${i.stock}</span>
+          <button class="use-btn" onclick="usarInsumo(${index})">− Usar</button>
+          <button class="delete-btn" onclick="borrarInsumo(${index})">🗑</button>
         </div>
       `;
+
+      insumosDiv.appendChild(card);
+    });
+
+    const tareasDiv = document.getElementById("tareas");
+    tareasDiv.innerHTML = "";
+
+    tareas.forEach((t, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <span>${t}</span>
+        <button class="use-btn" onclick="completarTarea(${index})">✔</button>
+      `;
+
+      tareasDiv.appendChild(card);
     });
   }
 
@@ -128,78 +154,47 @@
     const nombre = prompt("Nombre del insumo:");
     if (!nombre) return;
 
-    insumos.push({
-      nombre: nombre,
-      cantidad: 0
-    });
+    const existe = insumos.find(i => i.nombre.toLowerCase() === nombre.toLowerCase());
+    if (existe) {
+      alert("Ese insumo ya existe");
+      return;
+    }
 
-    guardarInsumos();
-    renderInsumos();
+    insumos.push({ nombre, stock: 0 });
+    guardar();
+    render();
   }
 
   function usarInsumo(index) {
-    if (insumos[index].cantidad > 0) {
-      insumos[index].cantidad -= 1;
-      guardarInsumos();
-      renderInsumos();
-    } else {
-      alert("No hay stock disponible");
+    if (insumos[index].stock > 0) {
+      insumos[index].stock--;
+      guardar();
+      render();
     }
   }
 
-  function eliminarInsumo(index) {
+  function borrarInsumo(index) {
     insumos.splice(index, 1);
-    guardarInsumos();
-    renderInsumos();
-  }
-
-  // ------------------------
-  // TAREAS
-  // ------------------------
-  function guardarTareas() {
-    localStorage.setItem("tareas", JSON.stringify(tareas));
-  }
-
-  function renderTareas() {
-    const contenedor = document.getElementById("listaTareas");
-    contenedor.innerHTML = "";
-
-    tareas.forEach((tarea, index) => {
-      contenedor.innerHTML += `
-        <div class="card">
-          <span class="${tarea.hecha ? "task-done" : ""}">
-            ${tarea.nombre}
-          </span>
-          <button onclick="toggleTarea(${index})">✔</button>
-        </div>
-      `;
-    });
+    guardar();
+    render();
   }
 
   function agregarTarea() {
-    const nombre = prompt("Nombre de la tarea:");
-    if (!nombre) return;
+    const texto = prompt("Descripción de la tarea:");
+    if (!texto) return;
 
-    tareas.push({
-      nombre: nombre,
-      hecha: false
-    });
-
-    guardarTareas();
-    renderTareas();
+    tareas.push(texto);
+    guardar();
+    render();
   }
 
-  function toggleTarea(index) {
-    tareas[index].hecha = !tareas[index].hecha;
-    guardarTareas();
-    renderTareas();
+  function completarTarea(index) {
+    tareas.splice(index, 1);
+    guardar();
+    render();
   }
 
-  // ------------------------
-  // INIT
-  // ------------------------
-  renderInsumos();
-  renderTareas();
+  render();
 </script>
 
 </body>
