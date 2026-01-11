@@ -9,8 +9,8 @@
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: #eef5e6;
-      color: #1f2933;
+      background: #eef3e6;
+      color: #1f2937;
     }
 
     header {
@@ -25,39 +25,39 @@
     }
 
     h2 {
-      margin-top: 0;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-size: 22px;
     }
 
     button {
       border: none;
       border-radius: 20px;
-      padding: 10px 14px;
+      padding: 10px 16px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #d9f2c2;
-      color: #245b2a;
-      margin-bottom: 12px;
+      background: #d9f2c0;
     }
 
     .card {
       background: white;
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 14px;
-      margin-bottom: 10px;
+      margin-top: 12px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    .card-info {
-      flex: 1;
+      justify-content: space-between;
     }
 
     .controls button {
-      margin-left: 6px;
-      padding: 6px 10px;
+      margin: 0 4px;
+    }
+
+    .check {
+      background: #c8e6a0;
       border-radius: 50%;
-      font-size: 16px;
+      padding: 8px 12px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -66,14 +66,12 @@
 
   <header>LimonerApp</header>
 
-  <!-- INSUMOS -->
   <section>
     <h2>Insumos</h2>
     <button onclick="agregarInsumo()">➕ Agregar insumo</button>
     <div id="listaInsumos"></div>
   </section>
 
-  <!-- TAREAS -->
   <section>
     <h2>Tareas</h2>
     <button onclick="agregarTarea()">➕ Agregar tarea</button>
@@ -81,125 +79,102 @@
   </section>
 
   <script>
-    /* ======================
-       INSUMOS
-    ====================== */
+    let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+    let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
 
-    let insumos = JSON.parse(localStorage.getItem("insumos")) || []
-
-    function guardarInsumos() {
-      localStorage.setItem("insumos", JSON.stringify(insumos))
+    function guardar() {
+      localStorage.setItem("insumos", JSON.stringify(insumos));
+      localStorage.setItem("tareas", JSON.stringify(tareas));
     }
 
     function renderInsumos() {
-      const contenedor = document.getElementById("listaInsumos")
-      contenedor.innerHTML = ""
+      const contenedor = document.getElementById("listaInsumos");
+      contenedor.innerHTML = "";
 
-      insumos.forEach((insumo, index) => {
-        const div = document.createElement("div")
-        div.className = "card"
-
-        div.innerHTML = `
-          <div class="card-info">
-            <strong>${insumo.nombre}</strong>
+      insumos.forEach((i, index) => {
+        contenedor.innerHTML += `
+          <div class="card">
+            <strong>${i.nombre}</strong>
+            <div class="controls">
+              <button onclick="cambiarCantidad(${index}, -1)">−</button>
+              ${i.cantidad}
+              <button onclick="cambiarCantidad(${index}, 1)">+</button>
+              <button onclick="eliminarInsumo(${index})">🗑️</button>
+            </div>
           </div>
-          <div class="controls">
-            <button onclick="cambiarCantidad(${index}, -1)">−</button>
-            ${insumo.cantidad}
-            <button onclick="cambiarCantidad(${index}, 1)">+</button>
-            <button onclick="eliminarInsumo(${index})">🗑️</button>
-          </div>
-        `
-        contenedor.appendChild(div)
-      })
+        `;
+      });
     }
 
     function agregarInsumo() {
-      const nombre = prompt("Nombre del insumo")
-      if (!nombre) return
+      const nombre = prompt("Nombre del insumo:");
+      if (!nombre) return;
 
       insumos.push({
         nombre: nombre,
         cantidad: 0
-      })
+      });
 
-      guardarInsumos()
-      renderInsumos()
+      guardar();
+      renderInsumos();
     }
 
     function cambiarCantidad(index, delta) {
-      insumos[index].cantidad += delta
-      if (insumos[index].cantidad < 0) insumos[index].cantidad = 0
-      guardarInsumos()
-      renderInsumos()
+      insumos[index].cantidad += delta;
+      if (insumos[index].cantidad < 0) insumos[index].cantidad = 0;
+      guardar();
+      renderInsumos();
     }
 
     function eliminarInsumo(index) {
-      insumos.splice(index, 1)
-      guardarInsumos()
-      renderInsumos()
-    }
-
-    /* ======================
-       TAREAS
-    ====================== */
-
-    let tareas = JSON.parse(localStorage.getItem("tareas")) || []
-
-    function guardarTareas() {
-      localStorage.setItem("tareas", JSON.stringify(tareas))
+      if (!confirm("¿Eliminar insumo?")) return;
+      insumos.splice(index, 1);
+      guardar();
+      renderInsumos();
     }
 
     function renderTareas() {
-      const contenedor = document.getElementById("listaTareas")
-      contenedor.innerHTML = ""
+      const contenedor = document.getElementById("listaTareas");
+      contenedor.innerHTML = "";
 
-      tareas.forEach((tarea, index) => {
-        const div = document.createElement("div")
-        div.className = "card"
-
-        div.innerHTML = `
-          <div class="card-info">
-            <strong>${tarea.nombre}</strong><br>
-            ${tarea.detalle} · ${tarea.fecha}
+      tareas.forEach((t, index) => {
+        contenedor.innerHTML += `
+          <div class="card">
+            <div>
+              <strong>${t.titulo}</strong><br />
+              ${t.fecha} · ${t.responsable}
+            </div>
+            <button class="check" onclick="eliminarTarea(${index})">✓</button>
           </div>
-          <div class="controls">
-            <button onclick="eliminarTarea(${index})">✔</button>
-          </div>
-        `
-        contenedor.appendChild(div)
-      })
+        `;
+      });
     }
 
     function agregarTarea() {
-      const nombre = prompt("Nombre de la tarea")
-      if (!nombre) return
+      const titulo = prompt("Título de la tarea:");
+      if (!titulo) return;
 
-      const detalle = prompt("Detalle (lote, cultivo, etc.)") || ""
-      const fecha = prompt("Fecha") || ""
+      const fecha = prompt("Fecha:");
+      const responsable = prompt("Responsable:");
 
       tareas.push({
-        nombre: nombre,
-        detalle: detalle,
-        fecha: fecha
-      })
+        titulo: titulo,
+        fecha: fecha || "-",
+        responsable: responsable || "-"
+      });
 
-      guardarTareas()
-      renderTareas()
+      guardar();
+      renderTareas();
     }
 
     function eliminarTarea(index) {
-      tareas.splice(index, 1)
-      guardarTareas()
-      renderTareas()
+      tareas.splice(index, 1);
+      guardar();
+      renderTareas();
     }
 
-    /* ======================
-       INICIO
-    ====================== */
-
-    renderInsumos()
-    renderTareas()
+    renderInsumos();
+    renderTareas();
   </script>
 
 </body>
