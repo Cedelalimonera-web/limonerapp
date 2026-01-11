@@ -1,204 +1,140 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LimonerApp</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Roboto;
-  background: linear-gradient(180deg,#f2f5f0,#e3efe2);
-}
-
-.app {
-  max-width: 420px;
-  margin: auto;
-  padding: 20px;
-}
-
-h1 { font-size: 28px; margin-bottom: 5px; }
-.sub { color:#666; margin-bottom:20px; }
-
-section { margin-top:30px; }
-
-button {
-  border:none;
-  border-radius:20px;
-  padding:10px 14px;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.primary { background:#2d6a4f; color:white; }
-.secondary { background:#e9efe4; color:#2d6a4f; }
-
-.card {
-  background:white;
-  border-radius:16px;
-  padding:14px;
-  margin-top:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,.05);
-}
-
-.row { display:flex; justify-content:space-between; align-items:center; }
-.small { font-size:14px; color:#666; }
-
-.actions button {
-  margin-left:6px;
-  font-size:13px;
-}
-
-.modal {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-
-.modal-box {
-  background:white;
-  padding:20px;
-  border-radius:16px;
-  width:90%;
-}
-
-input {
-  width:100%;
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-</style>
-</head>
-
-<body>
-<div class="app">
-  <h1>🍋 LimonerApp</h1>
-  <div class="sub">Control simple de campo</div>
-
-  <section>
-    <h2>Insumos</h2>
-    <button class="secondary" onclick="openInsumo()">➕ Agregar insumo</button>
-    <div id="insumos"></div>
-  </section>
-
-  <section>
-    <h2>Tareas</h2>
-    <button class="secondary" onclick="openTarea()">➕ Agregar tarea</button>
-    <div id="tareas"></div>
-  </section>
-</div>
-
-<!-- Modal -->
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <input id="m1" placeholder="">
-    <input id="m2" placeholder="">
-    <div class="row" style="margin-top:15px">
-      <button onclick="closeModal()">Cancelar</button>
-      <button class="primary" onclick="saveModal()">Guardar</button>
-    </div>
-  </div>
-</div>
-
 <script>
+/* ========= INSUMOS ========= */
 let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
+
+insumos = insumos.filter(i => i && i.nombre);
+insumos = insumos.map(i => ({
+  nombre: i.nombre,
+  stock: Number(i.stock) || 0
+}));
+localStorage.setItem("insumos", JSON.stringify(insumos));
+
+function renderInsumos() {
+  const lista = document.getElementById("listaInsumos");
+  lista.innerHTML = "";
+
+  insumos.forEach((insumo, index) => {
+    lista.innerHTML += `
+      <div class="card">
+        <strong>${insumo.nombre}</strong>
+        <span>${insumo.stock}</span>
+        <div class="acciones">
+          <button onclick="usarInsumo(${index})">− Usar</button>
+          <button onclick="eliminarInsumo(${index})">🗑️</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function agregarInsumo() {
+  const nombre = prompt("Nombre del insumo:");
+  if (!nombre) return;
+
+  const stock = Number(prompt("Stock inicial:")) || 0;
+  insumos.push({ nombre, stock });
+
+  localStorage.setItem("insumos", JSON.stringify(insumos));
+  renderInsumos();
+}
+
+function usarInsumo(index) {
+  if (insumos[index].stock > 0) {
+    insumos[index].stock--;
+    localStorage.setItem("insumos", JSON.stringify(insumos));
+    renderInsumos();
+  }
+}
+
+function eliminarInsumo(index) {
+  if (confirm("¿Eliminar insumo?")) {
+    insumos.splice(index, 1);
+    localStorage.setItem("insumos", JSON.stringify(insumos));
+    renderInsumos();
+  }
+}
+
+/* ========= TAREAS ========= */
 let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-let mode = "";
 
-const modal = document.getElementById("modal");
+function renderTareas() {
+  const lista = document.getElementById("listaTareas");
+  lista.innerHTML = "";
 
-function render() {
-  const iDiv = document.getElementById("insumos");
-  const tDiv = document.getElementById("tareas");
-  iDiv.innerHTML = "";
-  tDiv.innerHTML = "";
-
-  insumos.forEach((i,idx)=>{
-    iDiv.innerHTML += `
-    <div class="card">
-      <div class="row">
-        <strong>${i.nombre}</strong>
-        <span>${i.stock}</span>
+  tareas.forEach((t, index) => {
+    lista.innerHTML += `
+      <div class="card">
+        <strong style="text-decoration:${t.hecha ? 'line-through' : 'none'}">
+          ${t.texto}
+        </strong>
+        <small>
+          ${t.insumo ? `→ ${t.insumo} (${t.cantidad})` : ""}
+        </small>
+        <div class="acciones">
+          <button onclick="toggleTarea(${index})">
+            ${t.hecha ? '↩️' : '✅'}
+          </button>
+          <button onclick="eliminarTarea(${index})">🗑️</button>
+        </div>
       </div>
-      <div class="actions">
-        <button onclick="usar(${idx})">➖ Usar</button>
-        <button onclick="borrarInsumo(${idx})">🗑️</button>
-      </div>
-    </div>`;
+    `;
+  });
+}
+
+function agregarTarea() {
+  const texto = prompt("Descripción de la tarea:");
+  if (!texto) return;
+
+  let insumo = null;
+  let cantidad = 0;
+
+  if (insumos.length > 0 && confirm("¿Esta tarea usa insumos?")) {
+    const nombres = insumos.map(i => i.nombre).join(", ");
+    insumo = prompt("Insumo a usar:\n" + nombres);
+    cantidad = Number(prompt("Cantidad a usar:")) || 0;
+  }
+
+  tareas.push({
+    texto,
+    hecha: false,
+    insumo,
+    cantidad
   });
 
-  tareas.forEach((t,idx)=>{
-    tDiv.innerHTML += `
-    <div class="card">
-      <div class="row">
-        <span>${t}</span>
-        <button onclick="borrarTarea(${idx})">✔</button>
-      </div>
-    </div>`;
-  });
-
-  localStorage.setItem("insumos",JSON.stringify(insumos));
-  localStorage.setItem("tareas",JSON.stringify(tareas));
+  localStorage.setItem("tareas", JSON.stringify(tareas));
+  renderTareas();
 }
 
-function openInsumo(){
-  mode="insumo";
-  modal.style.display="flex";
-  modalTitle.innerText="Nuevo insumo";
-  m1.placeholder="Nombre";
-  m2.placeholder="Cantidad";
-}
+function toggleTarea(index) {
+  const tarea = tareas[index];
 
-function openTarea(){
-  mode="tarea";
-  modal.style.display="flex";
-  modalTitle.innerText="Nueva tarea";
-  m1.placeholder="Descripción";
-  m2.style.display="none";
-}
-
-function closeModal(){
-  modal.style.display="none";
-  m1.value=""; m2.value="";
-  m2.style.display="block";
-}
-
-function saveModal(){
-  if(mode==="insumo"){
-    insumos.push({nombre:m1.value,stock:Number(m2.value)});
+  if (!tarea.hecha && tarea.insumo && tarea.cantidad > 0) {
+    const insumo = insumos.find(i => i.nombre === tarea.insumo);
+    if (insumo) {
+      if (insumo.stock < tarea.cantidad) {
+        alert("Stock insuficiente");
+        return;
+      }
+      insumo.stock -= tarea.cantidad;
+    }
   }
-  if(mode==="tarea"){
-    tareas.push(m1.value);
+
+  tarea.hecha = !tarea.hecha;
+  localStorage.setItem("insumos", JSON.stringify(insumos));
+  localStorage.setItem("tareas", JSON.stringify(tareas));
+  renderInsumos();
+  renderTareas();
+}
+
+function eliminarTarea(index) {
+  if (confirm("¿Eliminar tarea?")) {
+    tareas.splice(index, 1);
+    localStorage.setItem("tareas", JSON.stringify(tareas));
+    renderTareas();
   }
-  closeModal();
-  render();
 }
 
-function usar(i){
-  const cant = prompt("Cantidad usada:");
-  if(!cant) return;
-  insumos[i].stock -= Number(cant);
-  render();
-}
-
-function borrarInsumo(i){
-  insumos.splice(i,1);
-  render();
-}
-
-function borrarTarea(i){
-  tareas.splice(i,1);
-  render();
-}
-
-render();
+/* ========= INIT ========= */
+renderInsumos();
+renderTareas();
 </script>
-</body>
-</html>
