@@ -36,7 +36,7 @@ const detalle = document.getElementById("detalleInsumo");
 const back = document.getElementById("btnBack");
 const modal = document.getElementById("modalUsar");
 
-// 🔒 ESTADO INICIAL FUERTE (Safari safe)
+// 🔒 Estado inicial seguro (Safari)
 function estadoInicial() {
   lista.style.display = "block";
   detalle.style.display = "none";
@@ -45,7 +45,7 @@ function estadoInicial() {
 }
 estadoInicial();
 
-// ---------- NAVEGACIÓN ----------
+// -------- NAVEGACIÓN --------
 
 function abrirInsumo(id) {
   insumoActivo = INSUMOS[id];
@@ -68,19 +68,24 @@ function abrirInsumo(id) {
 
 back.onclick = estadoInicial;
 
-// ---------- MOVIMIENTOS ----------
+// -------- MOVIMIENTOS --------
 
 function renderMovimientos() {
   const ul = document.getElementById("movimientos");
   ul.innerHTML = "";
+
   insumoActivo.movimientos.forEach(m => {
     const li = document.createElement("li");
-    li.textContent = m;
+
+    li.textContent =
+      `🕒 ${m.fecha} ${m.hora} — ` +
+      `Se usaron ${m.cantidad} ${m.unidad} en ${m.finca} – ${m.lote}`;
+
     ul.appendChild(li);
   });
 }
 
-// ---------- MODAL ----------
+// -------- MODAL --------
 
 function abrirModal() {
   modal.style.display = "flex";
@@ -117,14 +122,30 @@ function cargarLotes() {
 
 document.getElementById("fincaSelect").onchange = cargarLotes;
 
+// -------- CONFIRMAR USO --------
+
 function confirmarUso() {
   const cant = Number(document.getElementById("cantidadUsar").value);
-  if (!cant || cant <= 0) return;
+  if (!cant || cant <= 0 || cant > insumoActivo.stock) return;
+
+  const finca = document.getElementById("fincaSelect").value;
+  const lote = document.getElementById("loteSelect").value;
+
+  const ahora = new Date();
+  const fecha = ahora.toLocaleDateString("es-AR");
+  const hora = ahora.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
 
   insumoActivo.stock -= cant;
-  insumoActivo.movimientos.unshift(
-    `Se usaron ${cant} ${insumoActivo.unidad}`
-  );
+
+  insumoActivo.movimientos.unshift({
+    tipo: "uso",
+    cantidad: cant,
+    unidad: insumoActivo.unidad,
+    finca,
+    lote,
+    fecha,
+    hora
+  });
 
   cerrarModal();
 
