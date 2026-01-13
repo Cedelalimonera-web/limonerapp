@@ -16,7 +16,7 @@ const INSUMOS = {
 
 let activo = null;
 
-const inicio = document.getElementById("inicio");
+const home = document.getElementById("home");
 const listaCampo = document.getElementById("listaCampo");
 const listaEmpaque = document.getElementById("listaEmpaque");
 const detalle = document.getElementById("detalle");
@@ -24,7 +24,7 @@ const back = document.getElementById("btnBack");
 const modal = document.getElementById("modal");
 
 function ocultarTodo() {
-  inicio.style.display = "none";
+  home.style.display = "none";
   listaCampo.style.display = "none";
   listaEmpaque.style.display = "none";
   detalle.style.display = "none";
@@ -34,16 +34,18 @@ function ocultarTodo() {
 function irCampo() {
   ocultarTodo();
   listaCampo.style.display = "block";
+  back.style.display = "block";
 }
 
 function irEmpaque() {
   ocultarTodo();
   listaEmpaque.style.display = "block";
+  back.style.display = "block";
 }
 
 back.onclick = () => {
   ocultarTodo();
-  inicio.style.display = "block";
+  home.style.display = "block";
   back.style.display = "none";
 };
 
