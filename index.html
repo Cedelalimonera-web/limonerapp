@@ -2,30 +2,30 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LimonerApp</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <header>
-    🍋 LimonerApp
+  <header class="header">
+    <h1>🍋 LimonerApp</h1>
   </header>
 
-  <main>
-    <button id="addBtn" class="add-btn">➕ Agregar insumo</button>
-    <div id="items"></div>
-  </main>
+  <main class="container">
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
+    <button id="addBtn" class="primary-btn">
+      ➕ Agregar insumo
+    </button>
+
+    <!-- FORMULARIO -->
+    <section id="formSection" class="card hidden">
       <h2>Nuevo insumo</h2>
 
-      <input type="text" id="nameInput" placeholder="Nombre del insumo" />
+      <input type="text" id="nameInput" placeholder="Nombre del insumo">
 
       <select id="unitInput">
-        <option value="">Seleccionar unidad</option>
+        <option value="">Unidad</option>
         <option value="lts">Litros</option>
         <option value="kgs">Kilos</option>
         <option value="unidades">Unidades</option>
@@ -33,12 +33,16 @@
         <option value="bins">Bins</option>
       </select>
 
-      <div class="modal-actions">
-        <button id="saveBtn" class="save">Guardar</button>
-        <button id="cancelBtn" class="cancel">Cancelar</button>
-      </div>
-    </div>
-  </div>
+      <button id="saveBtn" class="primary-btn">Guardar</button>
+    </section>
+
+    <!-- LISTADO -->
+    <section id="listSection" class="card">
+      <h2>Insumos</h2>
+      <ul id="itemList"></ul>
+    </section>
+
+  </main>
 
   <script src="app.js"></script>
 </body>
