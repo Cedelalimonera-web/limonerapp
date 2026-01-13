@@ -3,50 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Limonerapp – UREA</title>
+  <title>Limonerapp</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header class="header">
   <div class="logo">🍋 Limonerapp</div>
-  <div class="back">←</div>
+  <div class="back hidden" id="btnBack">←</div>
 </header>
 
 <main class="container">
 
-  <section class="title">
-    <div>
-      <h1>UREA</h1>
-      <p>Almacén Campo</p>
+  <!-- LISTA INSUMOS CAMPO -->
+  <section id="listaCampo">
+    <h1>Insumos Campo</h1>
+
+    <div class="card insumo" onclick="abrirInsumo('urea')">
+      <strong>UREA</strong>
+      <span>Stock: 2.100 kg</span>
     </div>
-    <div class="stock-min">
-      ⚠️ Stock mínimo: <strong>200 kg</strong>
+
+    <div class="card insumo" onclick="abrirInsumo('fosfito')">
+      <strong>Fosfito K</strong>
+      <span>Stock: 480 kg</span>
     </div>
+
+    <div class="card insumo" onclick="abrirInsumo('glifosato')">
+      <strong>Glifosato</strong>
+      <span>Stock: 120 l</span>
+    </div>
+
+    <button class="btn green full">+ Agregar insumo</button>
   </section>
 
-  <section class="card stock-card">
-    <span class="label">Stock actual</span>
-    <span class="value" id="stockValue">0 kg</span>
+  <!-- DETALLE INSUMO -->
+  <section id="detalleInsumo" class="hidden">
 
-    <div class="progress">
-      <span>0 kg</span>
-      <div class="bar">
-        <div class="fill" id="stockBar"></div>
+    <section class="title">
+      <div>
+        <h1 id="nombreInsumo">UREA</h1>
+        <p>Almacén Campo</p>
       </div>
-      <span>5.000 kg</span>
-    </div>
-  </section>
+      <div class="stock-min">
+        ⚠️ Stock mínimo: <strong>200</strong>
+      </div>
+    </section>
 
-  <section class="actions">
-    <button class="btn green" id="btnIngresar">+ Ingresar</button>
-    <button class="btn orange" id="btnUsar">− Usar</button>
-    <button class="btn gray" disabled>↔ Transferir</button>
-  </section>
+    <section class="card stock-card">
+      <span class="label">Stock actual</span>
+      <span class="value" id="stockValue">0</span>
 
-  <section class="card">
-    <h2>Últimos movimientos</h2>
-    <ul id="movimientos"></ul>
+      <div class="progress">
+        <span>0</span>
+        <div class="bar">
+          <div class="fill" id="stockBar"></div>
+        </div>
+        <span id="capacidadMax">0</span>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button class="btn green">+ Ingresar</button>
+      <button class="btn orange" onclick="abrirModal()">− Usar</button>
+      <button class="btn gray" disabled>↔ Transferir</button>
+    </section>
+
+    <section class="card">
+      <h2>Últimos movimientos</h2>
+      <ul id="movimientos"></ul>
+    </section>
+
   </section>
 
 </main>
@@ -54,10 +81,10 @@
 <!-- MODAL USAR -->
 <div class="modal hidden" id="modalUsar">
   <div class="modal-content">
-    <h2>Usar UREA</h2>
+    <h2 id="modalTitulo">Usar</h2>
 
-    <label>Cantidad (kg)</label>
-    <input type="number" id="cantidadUsar" min="1"/>
+    <label>Cantidad</label>
+    <input type="number" id="cantidadUsar" />
 
     <label>Finca</label>
     <select id="fincaSelect"></select>
@@ -66,8 +93,8 @@
     <select id="loteSelect"></select>
 
     <div class="modal-actions">
-      <button class="btn gray" id="cancelarUso">Cancelar</button>
-      <button class="btn orange" id="confirmarUso">Confirmar</button>
+      <button class="btn gray" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn orange" onclick="confirmarUso()">Confirmar</button>
     </div>
   </div>
 </div>
