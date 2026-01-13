@@ -19,33 +19,29 @@ body {
   backdrop-filter: blur(10px);
 }
 
+.logo { font-weight: 600; }
+.back { cursor: pointer; }
+.hidden { display: none; }
+
 .container {
   padding: 20px;
   max-width: 420px;
   margin: auto;
 }
 
-.logo { font-weight: 600; }
-.back { opacity: 0.5; }
-
-.title {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.stock-min {
-  background: rgba(255,165,0,0.15);
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-}
+h1 { margin-bottom: 20px; }
 
 .card {
   background: rgba(255,255,255,0.05);
   border-radius: 18px;
   padding: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+}
+
+.insumo {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
 }
 
 .stock-card .value {
@@ -58,7 +54,6 @@ body {
 
 .progress {
   display: flex;
-  align-items: center;
   gap: 10px;
   margin-top: 15px;
   font-size: 12px;
@@ -75,7 +70,6 @@ body {
 .fill {
   height: 100%;
   background: linear-gradient(90deg, #4cff7a, #9dff6a);
-  width: 0%;
 }
 
 .actions {
@@ -89,31 +83,20 @@ body {
   padding: 14px;
   border-radius: 14px;
   border: none;
-  font-size: 15px;
   font-weight: 600;
 }
 
-.green {
-  background: linear-gradient(180deg, #6dff8b, #3fdc6c);
-  color: #003b1d;
-}
+.full { width: 100%; }
 
-.orange {
-  background: linear-gradient(180deg, #ffb26d, #ff8c3f);
-  color: #4a1e00;
-}
+.green { background: linear-gradient(#6dff8b,#3fdc6c); }
+.orange { background: linear-gradient(#ffb26d,#ff8c3f); }
+.gray { background: rgba(255,255,255,0.15); color: #aaa; }
 
-.gray {
-  background: rgba(255,255,255,0.15);
-  color: #aaa;
-}
-
-ul { list-style: none; padding: 0; margin: 0; }
+ul { list-style: none; padding: 0; }
 
 li {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  font-size: 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .modal {
@@ -125,34 +108,15 @@ li {
   justify-content: center;
 }
 
-.hidden { display: none; }
-
 .modal-content {
   background: #1c1f25;
   padding: 20px;
   border-radius: 16px;
   width: 90%;
-  max-width: 360px;
 }
 
 .modal-content label {
-  font-size: 13px;
-  opacity: 0.7;
+  margin-top: 10px;
   display: block;
-  margin-top: 12px;
-}
-
-.modal-content input,
-.modal-content select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 4px;
-  border-radius: 10px;
-  border: none;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  opacity: 0.7;
 }
