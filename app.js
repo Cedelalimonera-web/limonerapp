@@ -1,68 +1,84 @@
-let insumos = JSON.parse(localStorage.getItem("limonerapp_insumos")) || [];
+const addBtn = document.getElementById("addBtn");
+const modal = document.getElementById("modal");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const nameInput = document.getElementById("nameInput");
+const unitInput = document.getElementById("unitInput");
+const itemsDiv = document.getElementById("items");
 
-function guardar() {
-  localStorage.setItem("limonerapp_insumos", JSON.stringify(insumos));
+let items = JSON.parse(localStorage.getItem("items")) || [];
+
+function saveItems() {
+  localStorage.setItem("items", JSON.stringify(items));
 }
 
-function render() {
-  const lista = document.getElementById("listaInsumos");
-  lista.innerHTML = "";
+function renderItems() {
+  itemsDiv.innerHTML = "";
 
-  insumos.forEach((insumo, index) => {
-    const li = document.createElement("li");
-    li.className = "insumo";
+  items.forEach((item, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-    li.innerHTML = `
-      <div>
-        <div class="insumo-nombre">${insumo.nombre}</div>
-        <div>Stock: ${insumo.cantidad}</div>
-      </div>
-      <div class="controles">
-        <button onclick="sumar(${index})">➕</button>
-        <button onclick="restar(${index})">➖</button>
-        <button onclick="eliminar(${index})">🗑</button>
+    card.innerHTML = `
+      <h3>${item.name}</h3>
+      <div class="quantity">${item.qty} ${item.unit}</div>
+      <div class="actions">
+        <button class="plus">+</button>
+        <button class="minus">−</button>
+        <button class="delete">🗑</button>
       </div>
     `;
 
-    lista.appendChild(li);
+    card.querySelector(".plus").onclick = () => {
+      item.qty++;
+      saveItems();
+      renderItems();
+    };
+
+    card.querySelector(".minus").onclick = () => {
+      if (item.qty > 0) item.qty--;
+      saveItems();
+      renderItems();
+    };
+
+    card.querySelector(".delete").onclick = () => {
+      items.splice(index, 1);
+      saveItems();
+      renderItems();
+    };
+
+    itemsDiv.appendChild(card);
   });
 }
 
-function agregarInsumo() {
-  const nombre = document.getElementById("nombreInsumo").value.trim();
-  const cantidad = parseInt(document.getElementById("cantidadInsumo").value);
+addBtn.onclick = () => {
+  nameInput.value = "";
+  unitInput.value = "";
+  modal.classList.remove("hidden");
+};
 
-  if (!nombre || isNaN(cantidad)) return;
+cancelBtn.onclick = () => {
+  modal.classList.add("hidden");
+};
 
-  insumos.push({ nombre, cantidad });
-  guardar();
-  render();
+saveBtn.onclick = () => {
+  const name = nameInput.value.trim();
+  const unit = unitInput.value;
 
-  document.getElementById("nombreInsumo").value = "";
-  document.getElementById("cantidadInsumo").value = "";
-}
-
-function sumar(index) {
-  insumos[index].cantidad++;
-  guardar();
-  render();
-}
-
-function restar(index) {
-  if (insumos[index].cantidad > 0) {
-    insumos[index].cantidad--;
-    guardar();
-    render();
+  if (!name || !unit) {
+    alert("Completá nombre y unidad");
+    return;
   }
-}
 
-function eliminar(index) {
-  const ok = confirm("¿Eliminar este insumo?");
-  if (!ok) return;
+  items.push({
+    name,
+    unit,
+    qty: 0
+  });
 
-  insumos.splice(index, 1);
-  guardar();
-  render();
-}
+  saveItems();
+  renderItems();
+  modal.classList.add("hidden");
+};
 
-render();
+renderItems();
