@@ -15,11 +15,27 @@
 
 <main class="container">
 
-  <!-- INICIO -->
-  <section id="inicio">
-    <h1>¿Dónde querés trabajar?</h1>
-    <button class="btn green full" onclick="irCampo()">Campo</button>
-    <button class="btn blue full" onclick="irEmpaque()">Empaque</button>
+  <!-- HOME -->
+  <section id="home">
+
+    <div class="home-card campo" onclick="irCampo()">
+      <div>
+        <h2>Insumos Campo</h2>
+        <p class="status ok">Stock OK</p>
+        <p class="big">3 ítems</p>
+      </div>
+      <div class="icon">🌿</div>
+    </div>
+
+    <div class="home-card empaque" onclick="irEmpaque()">
+      <div>
+        <h2>Insumos Empaque</h2>
+        <p class="status alert">2 alertas activas</p>
+        <p class="big">3 ítems</p>
+      </div>
+      <div class="icon">📦</div>
+    </div>
+
   </section>
 
   <!-- LISTA CAMPO -->
@@ -73,7 +89,7 @@
     </div>
 
     <div class="actions">
-      <button class="btn green" onclick="ingresar()">+ Ingresar</button>
+      <button class="btn green">+ Ingresar</button>
       <button class="btn orange" onclick="abrirModal()">− Usar</button>
     </div>
 
@@ -85,7 +101,7 @@
 
 </main>
 
-<!-- MODAL -->
+<!-- MODAL USAR -->
 <div class="modal" id="modal" style="display:none">
   <div class="modal-content">
     <h2>Usar</h2>
