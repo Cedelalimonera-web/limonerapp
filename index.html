@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Limonerapp</title>
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- CSS con anti-cache -->
+  <link rel="stylesheet" href="styles.css?v=2">
+
 </head>
 <body>
 
@@ -15,7 +18,7 @@
 
 <main class="container">
 
-  <!-- HOME -->
+  <!-- ================= HOME ================= -->
   <section id="home">
 
     <div class="home-card campo" onclick="alert('Campo')">
@@ -34,7 +37,7 @@
       <div class="icon">📦</div>
     </div>
 
-    <!-- LLUVIA -->
+    <!-- ===== CARD LLUVIA (SECUNDARIO) ===== -->
     <div class="home-card lluvia small" onclick="irLluvia()">
       <div>
         <h3>🌧 Lluvia</h3>
@@ -45,7 +48,7 @@
 
   </section>
 
-  <!-- LLUVIA -->
+  <!-- ================= LLUVIA ================= -->
   <section id="lluvia" style="display:none">
 
     <div class="filtros">
@@ -66,12 +69,14 @@
 
 </main>
 
-<!-- MODAL -->
+<!-- ================= MODAL LLUVIA ================= -->
 <div class="modal" id="modalLluvia" style="display:none">
   <div class="modal-content">
     <h2 id="diaTxt"></h2>
+
     <label>Milímetros (0–400)</label>
     <input type="number" id="mmInput" min="0" max="400">
+
     <div class="actions">
       <button class="btn gray" onclick="cerrarModal()">Cancelar</button>
       <button class="btn blue" onclick="guardarLluvia()">Guardar</button>
@@ -79,6 +84,8 @@
   </div>
 </div>
 
-<script src="app.js"></script>
+<!-- JS -->
+<script src="app.js?v=2"></script>
+
 </body>
 </html>
