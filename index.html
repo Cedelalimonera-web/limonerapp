@@ -2,52 +2,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LimonerApp</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <header class="header">
+  <div class="container">
     <h1>🍋 LimonerApp</h1>
-  </header>
 
-  <main class="container">
+    <button id="btnAgregar">➕ Agregar insumo</button>
 
-    <button id="btnAgregar" class="btn-agregar">
-      ➕ Agregar insumo
-    </button>
+    <div id="formulario" class="hidden">
+      <input type="text" id="nombre" placeholder="Nombre del insumo">
 
-    <section class="card">
-      <h2>Insumos</h2>
-      <ul id="listaInsumos"></ul>
-    </section>
-
-  </main>
-
-  <!-- MODAL -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <h3>Nuevo insumo</h3>
-
-      <input id="nombre" type="text" placeholder="Nombre del insumo" />
+      <input type="number" id="cantidad" placeholder="Cantidad">
 
       <select id="unidad">
-        <option value="">Unidad</option>
-        <option value="lts">Litros</option>
-        <option value="kgs">Kilos</option>
-        <option value="un">Unidades</option>
-        <option value="bolsas">Bolsas</option>
-        <option value="bins">Bins</option>
+        <option value="kg">kg</option>
+        <option value="lt">litros</option>
+        <option value="un">unidades</option>
+        <option value="bolsa">bolsas</option>
+        <option value="bin">bins</option>
       </select>
 
-      <div class="modal-actions">
-        <button id="guardar">Guardar</button>
-        <button id="cancelar">Cancelar</button>
-      </div>
+      <button id="guardar">Guardar</button>
     </div>
+
+    <h2>Insumos</h2>
+    <ul id="lista"></ul>
   </div>
 
+  <!-- ESTO ES CLAVE -->
   <script src="app.js"></script>
 </body>
 </html>
