@@ -6,46 +6,89 @@
   <title>Limonerapp</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 
 <body>
-  <header class="header">
+  <header class="topbar">
     <div class="logo">🍋 Limonerapp</div>
   </header>
 
-  <main class="container">
+  <main id="app">
 
-    <!-- INSUMOS CAMPO -->
-    <div class="card clickable" onclick="goToCampo()">
-      <div class="card-text">
-        <h2>Insumos Campo</h2>
-        <p class="ok">Stock OK</p>
-      </div>
-      <div class="icon">🌿</div>
-    </div>
+    <!-- HOME -->
+    <section id="home" class="screen active">
 
-    <!-- INSUMOS EMPAQUE -->
-    <div class="card clickable" onclick="goToEmpaque()">
-      <div class="card-text">
-        <h2>Insumos Empaque</h2>
-        <p class="alert">Alertas</p>
+      <div class="card clickable" onclick="goToCampo()">
+        <div>
+          <h2>Insumos Campo</h2>
+          <span class="ok">Stock OK</span>
+        </div>
+        <div class="icon">🌿</div>
       </div>
-      <div class="icon">📦</div>
-    </div>
+
+      <div class="card clickable" onclick="goToEmpaque()">
+        <div>
+          <h2>Insumos Empaque</h2>
+          <span class="alert">Alertas</span>
+        </div>
+        <div class="icon">📦</div>
+      </div>
+
+      <div class="card clickable small" onclick="goToLluvia()">
+        <div>
+          <h3>🌧️ Lluvia</h3>
+          <p>enero · 149 mm · 5 días</p>
+          <p class="warning">⚠️ 15–18 ene (4 días)</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CAMPO -->
+    <section id="campo" class="screen">
+      <button class="back" onclick="goHome()">← Volver</button>
+      <h1>Insumos Campo</h1>
+
+      <div class="list">
+        <div class="item">UREA · Stock: 2080 kg</div>
+        <div class="item">Fosfito K · Stock: 480 kg</div>
+        <div class="item">Glifosato · Stock: 120 l</div>
+      </div>
+    </section>
+
+    <!-- EMPAQUE -->
+    <section id="empaque" class="screen">
+      <button class="back" onclick="goHome()">← Volver</button>
+      <h1>Insumos Empaque</h1>
+
+      <div class="list">
+        <div class="item">Cajas · Stock: 1200</div>
+        <div class="item">Bins · Stock: 80</div>
+        <div class="item">Film · Stock: 14</div>
+      </div>
+    </section>
 
     <!-- LLUVIA -->
-    <div class="card rain">
-      <div class="card-text">
-        <h2>🌧 Lluvia</h2>
-        <p>enero · 149 mm · 5 días</p>
-        <p class="warning">⚠ 15–18 ene (4 días)</p>
-      </div>
-    </div>
+    <section id="lluvia" class="screen">
+      <button class="back" onclick="goHome()">← Volver</button>
+      <h1>Lluvia</h1>
+      <p>Pantalla de lluvia (histórico y calendario vendrán después)</p>
+    </section>
 
   </main>
 
   <!-- JS -->
-  <script src="app.js"></script>
+  <script>
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function goHome() { show('home'); }
+    function goToCampo() { show('campo'); }
+    function goToEmpaque() { show('empaque'); }
+    function goToLluvia() { show('lluvia'); }
+  </script>
 </body>
 </html>
