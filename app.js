@@ -5,158 +5,119 @@ const FINCAS = {
 };
 
 const INSUMOS = {
-  urea: {
-    nombre: "UREA",
-    unidad: "kg",
-    stock: 2080,
-    capacidad: 5000,
-    movimientos: []
-  },
-  fosfito: {
-    nombre: "Fosfito K",
-    unidad: "kg",
-    stock: 480,
-    capacidad: 1000,
-    movimientos: []
-  },
-  glifosato: {
-    nombre: "Glifosato",
-    unidad: "l",
-    stock: 120,
-    capacidad: 500,
-    movimientos: []
-  }
+  urea: { nombre:"UREA", tipo:"campo", unidad:"kg", stock:2080, movimientos:[] },
+  fosfito: { nombre:"Fosfito K", tipo:"campo", unidad:"kg", stock:480, movimientos:[] },
+  glifosato: { nombre:"Glifosato", tipo:"campo", unidad:"l", stock:120, movimientos:[] },
+
+  cajas: { nombre:"Cajas Cartón", tipo:"empaque", unidad:"un", stock:1500, movimientos:[] },
+  bins: { nombre:"Bins", tipo:"empaque", unidad:"un", stock:320, movimientos:[] },
+  film: { nombre:"Film", tipo:"empaque", unidad:"rollos", stock:45, movimientos:[] }
 };
 
-let insumoActivo = null;
+let activo = null;
 
-// Elementos
-const lista = document.getElementById("listaCampo");
-const detalle = document.getElementById("detalleInsumo");
+const inicio = document.getElementById("inicio");
+const listaCampo = document.getElementById("listaCampo");
+const listaEmpaque = document.getElementById("listaEmpaque");
+const detalle = document.getElementById("detalle");
 const back = document.getElementById("btnBack");
-const modal = document.getElementById("modalUsar");
+const modal = document.getElementById("modal");
 
-// 🔒 Estado inicial seguro (Safari)
-function estadoInicial() {
-  lista.style.display = "block";
+function ocultarTodo() {
+  inicio.style.display = "none";
+  listaCampo.style.display = "none";
+  listaEmpaque.style.display = "none";
   detalle.style.display = "none";
-  back.style.display = "none";
   modal.style.display = "none";
 }
-estadoInicial();
 
-// -------- NAVEGACIÓN --------
+function irCampo() {
+  ocultarTodo();
+  listaCampo.style.display = "block";
+}
+
+function irEmpaque() {
+  ocultarTodo();
+  listaEmpaque.style.display = "block";
+}
+
+back.onclick = () => {
+  ocultarTodo();
+  inicio.style.display = "block";
+  back.style.display = "none";
+};
 
 function abrirInsumo(id) {
-  insumoActivo = INSUMOS[id];
-
-  lista.style.display = "none";
+  activo = INSUMOS[id];
+  ocultarTodo();
   detalle.style.display = "block";
   back.style.display = "block";
 
-  document.getElementById("nombreInsumo").textContent = insumoActivo.nombre;
-  document.getElementById("stockValue").textContent =
-    `${insumoActivo.stock} ${insumoActivo.unidad}`;
-  document.getElementById("capacidadMax").textContent =
-    `${insumoActivo.capacidad} ${insumoActivo.unidad}`;
+  document.getElementById("detalleNombre").textContent = activo.nombre;
+  document.getElementById("detalleUbicacion").textContent =
+    activo.tipo === "campo" ? "Almacén Campo" : "Empaque";
 
-  document.getElementById("stockBar").style.width =
-    Math.min((insumoActivo.stock / insumoActivo.capacidad) * 100, 100) + "%";
+  document.getElementById("detalleStock").textContent =
+    `${activo.stock} ${activo.unidad}`;
+
+  document.getElementById("campoExtra").style.display =
+    activo.tipo === "campo" ? "block" : "none";
 
   renderMovimientos();
 }
-
-back.onclick = estadoInicial;
-
-// -------- MOVIMIENTOS --------
 
 function renderMovimientos() {
   const ul = document.getElementById("movimientos");
   ul.innerHTML = "";
 
-  insumoActivo.movimientos.forEach(m => {
+  activo.movimientos.forEach(m => {
     const li = document.createElement("li");
-
-    // 🔁 Compatibilidad con movimientos viejos (string)
-    if (typeof m === "string") {
-      li.textContent = m;
-    } else {
-      li.textContent =
-        `🕒 ${m.fecha} ${m.hora} — ` +
-        `Se usaron ${m.cantidad} ${m.unidad} en ${m.finca} – ${m.lote}`;
-    }
-
+    li.textContent = m;
     ul.appendChild(li);
   });
 }
 
-// -------- MODAL --------
-
 function abrirModal() {
   modal.style.display = "flex";
-  cargarFincas();
-}
 
-function cerrarModal() {
-  modal.style.display = "none";
-  document.getElementById("cantidadUsar").value = "";
-}
-
-modal.addEventListener("click", (e) => {
-  if (e.target === modal) cerrarModal();
-});
-
-function cargarFincas() {
-  const fincaSel = document.getElementById("fincaSelect");
-  fincaSel.innerHTML = "";
-  Object.keys(FINCAS).forEach(f => {
-    fincaSel.innerHTML += `<option>${f}</option>`;
-  });
-  cargarLotes();
-}
-
-function cargarLotes() {
-  const finca = document.getElementById("fincaSelect").value;
-  const loteSel = document.getElementById("loteSelect");
-  loteSel.innerHTML = "";
-  for (let i = 1; i <= FINCAS[finca]; i++) {
-    loteSel.innerHTML += `<option>Lote ${i}</option>`;
+  if (activo.tipo === "campo") {
+    const finca = document.getElementById("finca");
+    finca.innerHTML = "";
+    Object.keys(FINCAS).forEach(f => finca.innerHTML += `<option>${f}</option>`);
+    cargarLotes();
   }
 }
 
-document.getElementById("fincaSelect").onchange = cargarLotes;
+function cargarLotes() {
+  const finca = document.getElementById("finca").value;
+  const lote = document.getElementById("lote");
+  lote.innerHTML = "";
+  for (let i = 1; i <= FINCAS[finca]; i++) {
+    lote.innerHTML += `<option>Lote ${i}</option>`;
+  }
+}
 
-// -------- CONFIRMAR USO --------
+document.getElementById("finca").onchange = cargarLotes;
+
+function cerrarModal() {
+  modal.style.display = "none";
+}
 
 function confirmarUso() {
-  const cant = Number(document.getElementById("cantidadUsar").value);
-  if (!cant || cant <= 0 || cant > insumoActivo.stock) return;
+  const cant = Number(document.getElementById("cantidad").value);
+  if (!cant || cant <= 0) return;
 
-  const finca = document.getElementById("fincaSelect").value;
-  const lote = document.getElementById("loteSelect").value;
+  activo.stock -= cant;
 
-  const ahora = new Date();
-  const fecha = ahora.toLocaleDateString("es-AR");
-  const hora = ahora.toLocaleTimeString("es-AR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
+  const ahora = new Date().toLocaleString("es-AR");
 
-  insumoActivo.stock -= cant;
+  let texto = `🕒 ${ahora} — Se usaron ${cant} ${activo.unidad}`;
 
-  insumoActivo.movimientos.unshift({
-    tipo: "uso",
-    cantidad: cant,
-    unidad: insumoActivo.unidad,
-    finca,
-    lote,
-    fecha,
-    hora
-  });
+  if (activo.tipo === "campo") {
+    texto += ` en ${document.getElementById("finca").value} – ${document.getElementById("lote").value}`;
+  }
 
+  activo.movimientos.unshift(texto);
   cerrarModal();
-
-  abrirInsumo(
-    Object.keys(INSUMOS).find(k => INSUMOS[k] === insumoActivo)
-  );
+  abrirInsumo(Object.keys(INSUMOS).find(k => INSUMOS[k] === activo));
 }
