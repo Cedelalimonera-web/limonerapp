@@ -3,37 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LimonerApp</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Limonerapp – UREA</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <div class="container">
-    <h1>🍋 LimonerApp</h1>
+  <header class="header">
+    <div class="logo">🍋 Limonerapp</div>
+    <div class="back">←</div>
+  </header>
 
-    <button id="btnAgregar">➕ Agregar insumo</button>
+  <main class="container">
 
-    <div id="formulario" class="hidden">
-      <input type="text" id="nombre" placeholder="Nombre del insumo">
+    <section class="title">
+      <div>
+        <h1>UREA</h1>
+        <p>Almacén Campo</p>
+      </div>
+      <div class="stock-min">
+        ⚠️ Stock mínimo: <strong>200 kg</strong>
+      </div>
+    </section>
 
-      <input type="number" id="cantidad" placeholder="Cantidad">
+    <section class="card stock-card">
+      <div class="stock-info">
+        <span class="label">Stock actual</span>
+        <span class="value" id="stockValue">0 kg</span>
+      </div>
 
-      <select id="unidad">
-        <option value="kg">kg</option>
-        <option value="lt">litros</option>
-        <option value="un">unidades</option>
-        <option value="bolsa">bolsas</option>
-        <option value="bin">bins</option>
-      </select>
+      <div class="progress">
+        <span>0 kg</span>
+        <div class="bar">
+          <div class="fill" id="stockBar"></div>
+        </div>
+        <span>5.000 kg</span>
+      </div>
+    </section>
 
-      <button id="guardar">Guardar</button>
-    </div>
+    <section class="actions">
+      <button class="btn green" id="btnIngresar">+ Ingresar</button>
+      <button class="btn orange" id="btnUsar">− Usar</button>
+      <button class="btn gray" disabled>↔ Transferir</button>
+    </section>
 
-    <h2>Insumos</h2>
-    <ul id="lista"></ul>
-  </div>
+    <section class="card">
+      <h2>Últimos movimientos</h2>
+      <ul id="movimientos"></ul>
+    </section>
 
-  <!-- ESTO ES CLAVE -->
+  </main>
+
   <script src="app.js"></script>
 </body>
 </html>
