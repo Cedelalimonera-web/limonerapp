@@ -2,9 +2,13 @@ const home = document.getElementById("home");
 const lluviaSec = document.getElementById("lluvia");
 const back = document.getElementById("btnBack");
 
+const resumenHome = document.getElementById("lluviaResumen");
+
 let lluvias = {};
 let selAnio, selMes, selDia;
+let alertaIntervalo = null;
 
+// ---------------- NAVEGACIÓN ----------------
 function irLluvia(){
   home.style.display="none";
   lluviaSec.style.display="block";
@@ -18,6 +22,7 @@ back.onclick=()=>{
   back.style.display="none";
 };
 
+// ---------------- LLUVIA ----------------
 function initLluvia(){
   const hoy=new Date();
   selAnio=hoy.getFullYear();
@@ -30,6 +35,7 @@ function initLluvia(){
 function cargarSelectores(){
   const anioSel=document.getElementById("anio");
   const mesSel=document.getElementById("mes");
+
   anioSel.innerHTML="";
   mesSel.innerHTML="";
 
@@ -49,11 +55,13 @@ function cargarSelectores(){
 function renderCalendario(){
   const cal=document.getElementById("calendario");
   cal.innerHTML="";
-  if(!lluvias[selAnio])lluvias[selAnio]={};
-  if(!lluvias[selAnio][selMes])lluvias[selAnio][selMes]={};
 
-  const dias=new Date(selAnio,selMes,0).getDate();
-  for(let d=1;d<=dias;d++){
+  if(!lluvias[selAnio]) lluvias[selAnio]={};
+  if(!lluvias[selAnio][selMes]) lluvias[selAnio][selMes]={};
+
+  const diasMes=new Date(selAnio,selMes,0).getDate();
+
+  for(let d=1;d<=diasMes;d++){
     const mm=lluvias[selAnio][selMes][d]||0;
     const div=document.createElement("div");
     div.className="dia"+(mm>0?" lluvia":"");
@@ -84,6 +92,7 @@ function guardarLluvia(){
   renderCalendario();
 }
 
+// ---------------- RESUMEN + HOME ----------------
 function actualizarResumen(){
   const datos=Object.values(lluvias[selAnio][selMes]);
   const total=datos.reduce((a,b)=>a+b,0);
@@ -91,26 +100,43 @@ function actualizarResumen(){
 
   document.getElementById("totalMes").textContent=total;
   document.getElementById("diasLluvia").textContent=dias;
-  document.getElementById("lluviaResumen").textContent=
-    `${new Date(selAnio,selMes-1).toLocaleString("es",{month:"long"})} · ${total} mm · ${dias} días`;
+
+  const mesTxt=new Date(selAnio,selMes-1).toLocaleString("es",{month:"long"});
+  let resumen=`${mesTxt} · ${total} mm · ${dias} días`;
+
+  if(alertaIntervalo){
+    resumen+=`\n⚠️ ${alertaIntervalo}`;
+  }
+
+  resumenHome.textContent=resumen;
 }
 
+// ---------------- ALERTA LLUVIA PROLONGADA ----------------
 function detectarAlerta(){
   const alerta=document.getElementById("alertaLluvia");
   alerta.style.display="none";
-  let seguidos=0,start=0;
+  alertaIntervalo=null;
+
+  let seguidos=0;
+  let inicio=null;
+
+  const datos=lluvias[selAnio][selMes];
 
   for(let d=1;d<=31;d++){
-    if((lluvias[selAnio][selMes][d]||0)>0){
-      if(seguidos===0)start=d;
+    if((datos[d]||0)>0){
+      if(seguidos===0) inicio=d;
       seguidos++;
+
       if(seguidos>=4){
+        const mesTxt=new Date(selAnio,selMes-1).toLocaleString("es",{month:"short"});
+        alertaIntervalo=`${inicio}–${d} ${mesTxt} (${seguidos} días)`;
         alerta.style.display="block";
-        alerta.textContent=`⚠️ Lluvia prolongada del ${start} al ${d}`;
-        return;
+        alerta.textContent=`⚠️ Lluvia prolongada del ${inicio} al ${d}`;
+        break;
       }
     }else{
       seguidos=0;
+      inicio=null;
     }
   }
 }
