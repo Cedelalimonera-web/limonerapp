@@ -1,30 +1,150 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top, #2a2f36, #0e1014);
+  color: #fff;
+}
+
+.header {
+  height: 60px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20,20,20,0.85);
+}
+
+.container {
+  padding: 20px;
+  max-width: 420px;
+  margin: auto;
+}
+
+/* HOME */
+.home-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+
 .home-card.small {
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.08);
+  padding: 14px 18px;
+  border-radius: 16px;
+}
+
+.home-card h2,
+.home-card h3 {
+  margin: 0 0 6px 0;
+}
+
+.icon {
+  font-size: 42px;
+}
+
+.status.ok { color: #7cff9a; }
+.status.alert { color: #ffb26d; }
+
+.mini {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.alerta-home {
+  color: #ffb26d;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* LLUVIA */
+.filtros {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+select {
+  flex: 1;
+  padding: 8px;
+  border-radius: 10px;
+  background: #1c1f25;
+  color: white;
+  border: none;
 }
 
 .calendario {
   display: grid;
-  grid-template-columns: repeat(7,1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 6px;
-  margin: 15px 0;
+  margin-bottom: 20px;
 }
 
 .dia {
   background: rgba(255,255,255,0.08);
-  padding: 10px;
+  padding: 10px 0;
   text-align: center;
   border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .dia.lluvia {
-  background: rgba(80,160,255,0.4);
+  background: rgba(80,160,255,0.45);
+}
+
+.card {
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
 }
 
 .alerta {
-  background: rgba(255,120,120,0.2);
+  background: rgba(255,120,120,0.25);
   padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #1c1f25;
+  padding: 20px;
+  border-radius: 16px;
+  width: 90%;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+}
+
+.btn.blue {
+  background: linear-gradient(#6da8ff,#3f7cdc);
+}
+
+.btn.gray {
+  background: rgba(255,255,255,0.2);
+  color: #ccc;
 }
