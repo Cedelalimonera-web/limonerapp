@@ -1,170 +1,152 @@
-/* ================= ESTADO ================= */
+// ================================
+// LimonerApp – app.js
+// ================================
 
-let vistaActual = "home";
+let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
 let insumoActual = null;
-let tipoActual = null; // campo | empaque
-let accionActual = null;
 
-const fincas = [
-  "Finca Juan Luis",
-  "Finca La Limonera",
-  "Finca San Jorge"
-];
+// ----------------
+// Inicialización
+// ----------------
+document.addEventListener("DOMContentLoaded", () => {
+  renderLista();
+});
 
-const lotes = Array.from({length:20}, (_,i)=>`Lote ${i+1}`);
-
-/* ================= DATOS ================= */
-
-let campo = JSON.parse(localStorage.getItem("campo")) || [
-  {id:1, nombre:"UREA", stock:2080, unidad:"kg"},
-  {id:2, nombre:"Fosfito K", stock:480, unidad:"kg"},
-  {id:3, nombre:"Glifosato", stock:120, unidad:"l"}
-];
-
-let empaque = JSON.parse(localStorage.getItem("empaque")) || [
-  {id:101, nombre:"Cajas cartón", stock:3500, unidad:"u"},
-  {id:102, nombre:"Bin plástico", stock:120, unidad:"u"},
-  {id:103, nombre:"Film stretch", stock:18, unidad:"rollos"}
-];
-
-let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
-
-/* ================= NAVEGACIÓN ================= */
-
-function mostrar(id){
-  document.querySelectorAll("section").forEach(s=>s.style.display="none");
-  document.getElementById(id).style.display="block";
-  document.getElementById("btnBack").style.display = id==="home" ? "none":"block";
-  vistaActual = id;
+// ----------------
+// Guardar en localStorage
+// ----------------
+function guardar() {
+  localStorage.setItem("insumos", JSON.stringify(insumos));
 }
 
-function volverHome(){
-  mostrar("home");
-}
+// ----------------
+// Render lista principal
+// ----------------
+function renderLista() {
+  const contenedor = document.getElementById("lista-insumos");
+  if (!contenedor) return;
 
-function irCampo(){
-  renderCampo();
-  mostrar("campo");
-}
+  contenedor.innerHTML = "";
 
-function irEmpaque(){
-  renderEmpaque();
-  mostrar("empaque");
-}
-
-/* ================= LISTAS ================= */
-
-function renderCampo(){
-  const c = document.getElementById("listaCampo");
-  c.innerHTML = "";
-  campo.forEach(i=>{
-    c.innerHTML += `
-      <div class="item" onclick="abrirDetalle(${i.id},'campo')">
-        <strong>${i.nombre}</strong>
-        <span>Stock: ${i.stock} ${i.unidad}</span>
-      </div>`;
+  insumos.forEach((insumo, index) => {
+    const div = document.createElement("div");
+    div.className = "insumo-card";
+    div.innerHTML = `
+      <h3>${insumo.nombre}</h3>
+      <p>Stock: <strong>${insumo.stock} ${insumo.unidad}</strong></p>
+    `;
+    div.onclick = () => abrirDetalle(index);
+    contenedor.appendChild(div);
   });
 }
 
-function renderEmpaque(){
-  const e = document.getElementById("listaEmpaque");
-  e.innerHTML = "";
-  empaque.forEach(i=>{
-    e.innerHTML += `
-      <div class="item" onclick="abrirDetalle(${i.id},'empaque')">
-        <strong>${i.nombre}</strong>
-        <span>Stock: ${i.stock} ${i.unidad}</span>
-      </div>`;
-  });
+// ----------------
+// Abrir detalle insumo
+// ----------------
+function abrirDetalle(index) {
+  insumoActual = index;
+  const insumo = insumos[index];
+
+  document.getElementById("detalle-nombre").innerText = insumo.nombre;
+  document.getElementById("detalle-stock").innerText =
+    `Stock actual: ${insumo.stock} ${insumo.unidad}`;
+
+  renderMovimientos();
+
+  document.getElementById("pantalla-lista").style.display = "none";
+  document.getElementById("pantalla-detalle").style.display = "block";
 }
 
-/* ================= DETALLE ================= */
+// ----------------
+// Volver
+// ----------------
+function volver() {
+  document.getElementById("pantalla-detalle").style.display = "none";
+  document.getElementById("pantalla-lista").style.display = "block";
+}
 
-function abrirDetalle(id,tipo){
-  tipoActual = tipo;
-  insumoActual = (tipo==="campo"?campo:empaque).find(i=>i.id===id);
+// ----------------
+// Ingresar stock
+// ----------------
+function ingresarStock() {
+  const cantidad = prompt("Cantidad a ingresar:");
+  if (!cantidad || isNaN(cantidad)) return;
 
-  let html = `
-    <h2>${insumoActual.nombre}</h2>
-    <p>Stock actual: <strong>${insumoActual.stock} ${insumoActual.unidad}</strong></p>
+  const insumo = insumos[insumoActual];
+  const valor = Number(cantidad);
 
-    <div class="acciones">
-      <button class="btn green" onclick="abrirModal('ingresar')">+ Ingresar</button>
-      <button class="btn orange" onclick="abrirModal('usar')">- Usar</button>
-    </div>
+  insumo.stock += valor;
+  insumo.movimientos.push({
+    tipo: "Ingreso",
+    cantidad: valor,
+    fecha: new Date().toLocaleString()
+  });
 
-    <h3>Últimos movimientos</h3>
-  `;
+  guardar();
+  abrirDetalle(insumoActual);
+}
 
-  movimientos
-    .filter(m=>m.insumo===insumoActual.nombre)
-    .slice(-5)
+// ----------------
+// Usar stock
+// ----------------
+function usarStock() {
+  const cantidad = prompt("Cantidad a usar:");
+  if (!cantidad || isNaN(cantidad)) return;
+
+  const detalle = prompt("Detalle (ej: Cuadro 5):") || "Uso";
+  const valor = Number(cantidad);
+
+  const insumo = insumos[insumoActual];
+  if (valor > insumo.stock) {
+    alert("Stock insuficiente");
+    return;
+  }
+
+  insumo.stock -= valor;
+  insumo.movimientos.push({
+    tipo: "Uso",
+    cantidad: valor,
+    detalle: detalle,
+    fecha: new Date().toLocaleString()
+  });
+
+  guardar();
+  abrirDetalle(insumoActual);
+}
+
+// ----------------
+// Render movimientos
+// ----------------
+function renderMovimientos() {
+  const lista = document.getElementById("lista-movimientos");
+  if (!lista) return;
+
+  lista.innerHTML = "";
+  const insumo = insumos[insumoActual];
+
+  if (!insumo.movimientos || insumo.movimientos.length === 0) {
+    lista.innerHTML = "<p style='opacity:.6'>Sin movimientos</p>";
+    return;
+  }
+
+  insumo.movimientos
+    .slice()
     .reverse()
-    .forEach(m=>{
-      html += `<p>${m.fecha} — ${m.texto}</p>`;
+    .forEach(mov => {
+      const div = document.createElement("div");
+      div.className = "movimiento";
+      div.innerHTML = `
+        <strong>${mov.tipo}</strong> – ${mov.cantidad} ${insumo.unidad}<br>
+        ${mov.detalle ? mov.detalle + "<br>" : ""}
+        <small>${mov.fecha}</small>
+      `;
+      lista.appendChild(div);
     });
-
-  document.getElementById("detalle").innerHTML = html;
-  mostrar("detalle");
 }
 
-/* ================= MODAL ================= */
-
-function abrirModal(accion){
-  accionActual = accion;
-  document.getElementById("modal").style.display="flex";
-  document.getElementById("modalTitulo").textContent =
-    (accion==="ingresar"?"Ingresar":"Usar")+" "+insumoActual.nombre;
-
-  document.getElementById("modalCantidad").value="";
-
-  const f = document.getElementById("modalFinca");
-  const l = document.getElementById("modalLote");
-
-  if(tipoActual==="campo"){
-    f.style.display="block";
-    l.style.display="block";
-    f.innerHTML = fincas.map(x=>`<option>${x}</option>`).join("");
-    l.innerHTML = lotes.map(x=>`<option>${x}</option>`).join("");
-  } else {
-    f.style.display="none";
-    l.style.display="none";
-  }
-}
-
-function cerrarModal(){
-  document.getElementById("modal").style.display="none";
-}
-
-/* ================= CONFIRMAR ================= */
-
-function confirmarModal(){
-  const cant = Number(document.getElementById("modalCantidad").value);
-  if(!cant || cant<=0) return;
-
-  if(accionActual==="ingresar") insumoActual.stock += cant;
-  else insumoActual.stock -= cant;
-
-  const ahora = new Date().toLocaleString("es");
-
-  let texto = accionActual==="ingresar"
-    ? `Se ingresaron ${cant} ${insumoActual.unidad}`
-    : `Se usaron ${cant} ${insumoActual.unidad}`;
-
-  if(tipoActual==="campo"){
-    texto += ` en ${modalFinca.value} - ${modalLote.value}`;
-  }
-
-  movimientos.push({
-    insumo: insumoActual.nombre,
-    texto,
-    fecha: ahora
-  });
-
-  localStorage.setItem("campo",JSON.stringify(campo));
-  localStorage.setItem("empaque",JSON.stringify(empaque));
-  localStorage.setItem("movimientos",JSON.stringify(movimientos));
-
-  cerrarModal();
-  abrirDetalle(insumoActual.id,tipoActual);
-}
+// ----------------
+// BOTONES
+// ----------------
+document.getElementById("btn-ingresar")?.addEventListener("click", ingresarStock);
+document.getElementById("btn-usar")?.addEventListener("click", usarStock);
+document.getElementById("btn-volver")?.addEventListener("click", volver);
