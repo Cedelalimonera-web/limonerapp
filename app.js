@@ -1,141 +1,170 @@
-const home = document.getElementById("home");
-const lluviaSec = document.getElementById("lluvia");
-const back = document.getElementById("btnBack");
+/* ================= ESTADO ================= */
 
-const resumenHome = document.getElementById("lluviaResumen");
-const alertaHome = document.getElementById("lluviaAlerta");
+let vistaActual = "home";
+let insumoActual = null;
+let tipoActual = null; // campo | empaque
+let accionActual = null;
 
-let lluvias = {};
-let selAnio, selMes, selDia;
-let alertaIntervalo = null;
+const fincas = [
+  "Finca Juan Luis",
+  "Finca La Limonera",
+  "Finca San Jorge"
+];
 
-// ---------- NAVEGACIÓN ----------
-function irLluvia(){
-  home.style.display = "none";
-  lluviaSec.style.display = "block";
-  back.style.display = "block";
-  initLluvia();
+const lotes = Array.from({length:20}, (_,i)=>`Lote ${i+1}`);
+
+/* ================= DATOS ================= */
+
+let campo = JSON.parse(localStorage.getItem("campo")) || [
+  {id:1, nombre:"UREA", stock:2080, unidad:"kg"},
+  {id:2, nombre:"Fosfito K", stock:480, unidad:"kg"},
+  {id:3, nombre:"Glifosato", stock:120, unidad:"l"}
+];
+
+let empaque = JSON.parse(localStorage.getItem("empaque")) || [
+  {id:101, nombre:"Cajas cartón", stock:3500, unidad:"u"},
+  {id:102, nombre:"Bin plástico", stock:120, unidad:"u"},
+  {id:103, nombre:"Film stretch", stock:18, unidad:"rollos"}
+];
+
+let movimientos = JSON.parse(localStorage.getItem("movimientos")) || [];
+
+/* ================= NAVEGACIÓN ================= */
+
+function mostrar(id){
+  document.querySelectorAll("section").forEach(s=>s.style.display="none");
+  document.getElementById(id).style.display="block";
+  document.getElementById("btnBack").style.display = id==="home" ? "none":"block";
+  vistaActual = id;
 }
 
-back.onclick = () => {
-  lluviaSec.style.display = "none";
-  home.style.display = "block";
-  back.style.display = "none";
-};
-
-// ---------- LLUVIA ----------
-function initLluvia(){
-  const hoy = new Date();
-  selAnio = hoy.getFullYear();
-  selMes = hoy.getMonth() + 1;
-
-  cargarSelectores();
-  renderCalendario();
+function volverHome(){
+  mostrar("home");
 }
 
-function cargarSelectores(){
-  const anioSel = document.getElementById("anio");
-  const mesSel = document.getElementById("mes");
+function irCampo(){
+  renderCampo();
+  mostrar("campo");
+}
 
-  anioSel.innerHTML = "";
-  mesSel.innerHTML = "";
+function irEmpaque(){
+  renderEmpaque();
+  mostrar("empaque");
+}
 
-  for(let a = 2024; a <= 2028; a++){
-    anioSel.innerHTML += `<option ${a===selAnio?"selected":""}>${a}</option>`;
-  }
+/* ================= LISTAS ================= */
 
-  const meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  meses.forEach((m,i)=>{
-    mesSel.innerHTML += `<option value="${i+1}" ${i+1===selMes?"selected":""}>${m}</option>`;
+function renderCampo(){
+  const c = document.getElementById("listaCampo");
+  c.innerHTML = "";
+  campo.forEach(i=>{
+    c.innerHTML += `
+      <div class="item" onclick="abrirDetalle(${i.id},'campo')">
+        <strong>${i.nombre}</strong>
+        <span>Stock: ${i.stock} ${i.unidad}</span>
+      </div>`;
   });
-
-  anioSel.onchange = e => { selAnio = +e.target.value; renderCalendario(); }
-  mesSel.onchange = e => { selMes = +e.target.value; renderCalendario(); }
 }
 
-function renderCalendario(){
-  const cal = document.getElementById("calendario");
-  cal.innerHTML = "";
+function renderEmpaque(){
+  const e = document.getElementById("listaEmpaque");
+  e.innerHTML = "";
+  empaque.forEach(i=>{
+    e.innerHTML += `
+      <div class="item" onclick="abrirDetalle(${i.id},'empaque')">
+        <strong>${i.nombre}</strong>
+        <span>Stock: ${i.stock} ${i.unidad}</span>
+      </div>`;
+  });
+}
 
-  if(!lluvias[selAnio]) lluvias[selAnio] = {};
-  if(!lluvias[selAnio][selMes]) lluvias[selAnio][selMes] = {};
+/* ================= DETALLE ================= */
 
-  const diasMes = new Date(selAnio, selMes, 0).getDate();
+function abrirDetalle(id,tipo){
+  tipoActual = tipo;
+  insumoActual = (tipo==="campo"?campo:empaque).find(i=>i.id===id);
 
-  for(let d=1; d<=diasMes; d++){
-    const mm = lluvias[selAnio][selMes][d] || 0;
-    const div = document.createElement("div");
-    div.className = "dia" + (mm>0 ? " lluvia" : "");
-    div.textContent = d;
-    div.onclick = () => abrirModal(d);
-    cal.appendChild(div);
+  let html = `
+    <h2>${insumoActual.nombre}</h2>
+    <p>Stock actual: <strong>${insumoActual.stock} ${insumoActual.unidad}</strong></p>
+
+    <div class="acciones">
+      <button class="btn green" onclick="abrirModal('ingresar')">+ Ingresar</button>
+      <button class="btn orange" onclick="abrirModal('usar')">- Usar</button>
+    </div>
+
+    <h3>Últimos movimientos</h3>
+  `;
+
+  movimientos
+    .filter(m=>m.insumo===insumoActual.nombre)
+    .slice(-5)
+    .reverse()
+    .forEach(m=>{
+      html += `<p>${m.fecha} — ${m.texto}</p>`;
+    });
+
+  document.getElementById("detalle").innerHTML = html;
+  mostrar("detalle");
+}
+
+/* ================= MODAL ================= */
+
+function abrirModal(accion){
+  accionActual = accion;
+  document.getElementById("modal").style.display="flex";
+  document.getElementById("modalTitulo").textContent =
+    (accion==="ingresar"?"Ingresar":"Usar")+" "+insumoActual.nombre;
+
+  document.getElementById("modalCantidad").value="";
+
+  const f = document.getElementById("modalFinca");
+  const l = document.getElementById("modalLote");
+
+  if(tipoActual==="campo"){
+    f.style.display="block";
+    l.style.display="block";
+    f.innerHTML = fincas.map(x=>`<option>${x}</option>`).join("");
+    l.innerHTML = lotes.map(x=>`<option>${x}</option>`).join("");
+  } else {
+    f.style.display="none";
+    l.style.display="none";
   }
-
-  actualizarResumen();
-  detectarAlerta();
-}
-
-function abrirModal(d){
-  selDia = d;
-  document.getElementById("diaTxt").textContent = `Día ${d}`;
-  document.getElementById("mmInput").value = lluvias[selAnio][selMes][d] || 0;
-  document.getElementById("modalLluvia").style.display = "flex";
 }
 
 function cerrarModal(){
-  document.getElementById("modalLluvia").style.display = "none";
+  document.getElementById("modal").style.display="none";
 }
 
-function guardarLluvia(){
-  const mm = +document.getElementById("mmInput").value;
-  lluvias[selAnio][selMes][selDia] = mm;
+/* ================= CONFIRMAR ================= */
+
+function confirmarModal(){
+  const cant = Number(document.getElementById("modalCantidad").value);
+  if(!cant || cant<=0) return;
+
+  if(accionActual==="ingresar") insumoActual.stock += cant;
+  else insumoActual.stock -= cant;
+
+  const ahora = new Date().toLocaleString("es");
+
+  let texto = accionActual==="ingresar"
+    ? `Se ingresaron ${cant} ${insumoActual.unidad}`
+    : `Se usaron ${cant} ${insumoActual.unidad}`;
+
+  if(tipoActual==="campo"){
+    texto += ` en ${modalFinca.value} - ${modalLote.value}`;
+  }
+
+  movimientos.push({
+    insumo: insumoActual.nombre,
+    texto,
+    fecha: ahora
+  });
+
+  localStorage.setItem("campo",JSON.stringify(campo));
+  localStorage.setItem("empaque",JSON.stringify(empaque));
+  localStorage.setItem("movimientos",JSON.stringify(movimientos));
+
   cerrarModal();
-  renderCalendario();
-}
-
-// ---------- RESUMEN ----------
-function actualizarResumen(){
-  const datos = Object.values(lluvias[selAnio][selMes]);
-  const total = datos.reduce((a,b)=>a+b,0);
-  const dias = datos.filter(v=>v>0).length;
-
-  const mesTxt = new Date(selAnio, selMes-1)
-    .toLocaleString("es",{month:"long"});
-
-  resumenHome.textContent = `${mesTxt} · ${total} mm · ${dias} días`;
-
-  if(alertaIntervalo){
-    alertaHome.style.display = "block";
-    alertaHome.textContent = `⚠️ ${alertaIntervalo}`;
-  } else {
-    alertaHome.style.display = "none";
-  }
-
-  document.getElementById("totalMes").textContent = total;
-  document.getElementById("diasLluvia").textContent = dias;
-}
-
-// ---------- ALERTA ----------
-function detectarAlerta(){
-  alertaIntervalo = null;
-  let seguidos = 0;
-  let inicio = null;
-
-  const datos = lluvias[selAnio][selMes];
-
-  for(let d=1; d<=31; d++){
-    if((datos[d]||0) > 0){
-      if(seguidos === 0) inicio = d;
-      seguidos++;
-      if(seguidos >= 4){
-        const mesTxt = new Date(selAnio, selMes-1)
-          .toLocaleString("es",{month:"short"});
-        alertaIntervalo = `${inicio}–${d} ${mesTxt} (${seguidos} días)`;
-        break;
-      }
-    } else {
-      seguidos = 0;
-      inicio = null;
-    }
-  }
+  abrirDetalle(insumoActual.id,tipoActual);
 }
