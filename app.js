@@ -1,46 +1,12 @@
-const FINCAS = {
-  "Finca Juan Luis": 20,
-  "Finca La Limonera": 20,
-  "Finca San Jorge": 20
-};
-
-const INSUMOS = {
-  urea: { nombre:"UREA", tipo:"campo", unidad:"kg", stock:2080, movimientos:[] },
-  fosfito: { nombre:"Fosfito K", tipo:"campo", unidad:"kg", stock:480, movimientos:[] },
-  glifosato: { nombre:"Glifosato", tipo:"campo", unidad:"l", stock:120, movimientos:[] },
-
-  cajas: { nombre:"Cajas Cartón", tipo:"empaque", unidad:"un", stock:1500, movimientos:[] },
-  bins: { nombre:"Bins", tipo:"empaque", unidad:"un", stock:320, movimientos:[] },
-  film: { nombre:"Film", tipo:"empaque", unidad:"rollos", stock:45, movimientos:[] }
-};
-
-let activo = null;
-
+// --------- NAVEGACIÓN ----------
 const home = document.getElementById("home");
-const listaCampo = document.getElementById("listaCampo");
-const listaEmpaque = document.getElementById("listaEmpaque");
-const detalle = document.getElementById("detalle");
+const lluviaSec = document.getElementById("lluvia");
 const back = document.getElementById("btnBack");
-const modal = document.getElementById("modal");
 
 function ocultarTodo() {
   home.style.display = "none";
-  listaCampo.style.display = "none";
-  listaEmpaque.style.display = "none";
-  detalle.style.display = "none";
-  modal.style.display = "none";
-}
-
-function irCampo() {
-  ocultarTodo();
-  listaCampo.style.display = "block";
-  back.style.display = "block";
-}
-
-function irEmpaque() {
-  ocultarTodo();
-  listaEmpaque.style.display = "block";
-  back.style.display = "block";
+  lluviaSec.style.display = "none";
+  document.getElementById("modalLluvia").style.display = "none";
 }
 
 back.onclick = () => {
@@ -49,77 +15,92 @@ back.onclick = () => {
   back.style.display = "none";
 };
 
-function abrirInsumo(id) {
-  activo = INSUMOS[id];
+function irCampo() {
+  alert("Campo (ya implementado en versión anterior)");
+}
+
+function irEmpaque() {
+  alert("Empaque (ya implementado en versión anterior)");
+}
+
+// --------- LLUVIA ----------
+const calendario = document.getElementById("calendario");
+const mesTitulo = document.getElementById("mesTitulo");
+const totalMesEl = document.getElementById("totalMes");
+const diasLluviaEl = document.getElementById("diasLluvia");
+const resumenHome = document.getElementById("lluviaResumen");
+
+let lluviaData = {};
+let diaActual = "";
+
+function irLluvia() {
   ocultarTodo();
-  detalle.style.display = "block";
+  lluviaSec.style.display = "block";
   back.style.display = "block";
-
-  document.getElementById("detalleNombre").textContent = activo.nombre;
-  document.getElementById("detalleUbicacion").textContent =
-    activo.tipo === "campo" ? "Almacén Campo" : "Empaque";
-
-  document.getElementById("detalleStock").textContent =
-    `${activo.stock} ${activo.unidad}`;
-
-  document.getElementById("campoExtra").style.display =
-    activo.tipo === "campo" ? "block" : "none";
-
-  renderMovimientos();
+  renderCalendario();
 }
 
-function renderMovimientos() {
-  const ul = document.getElementById("movimientos");
-  ul.innerHTML = "";
+function renderCalendario() {
+  calendario.innerHTML = "";
 
-  activo.movimientos.forEach(m => {
-    const li = document.createElement("li");
-    li.textContent = m;
-    ul.appendChild(li);
+  const hoy = new Date();
+  const año = hoy.getFullYear();
+  const mes = hoy.getMonth();
+
+  mesTitulo.textContent = hoy.toLocaleDateString("es-AR", {
+    month: "long",
+    year: "numeric"
   });
-}
 
-function abrirModal() {
-  modal.style.display = "flex";
+  const primerDia = new Date(año, mes, 1);
+  const offset = (primerDia.getDay() + 6) % 7; // lunes primero
+  const diasMes = new Date(año, mes + 1, 0).getDate();
 
-  if (activo.tipo === "campo") {
-    const finca = document.getElementById("finca");
-    finca.innerHTML = "";
-    Object.keys(FINCAS).forEach(f => finca.innerHTML += `<option>${f}</option>`);
-    cargarLotes();
-  }
-}
-
-function cargarLotes() {
-  const finca = document.getElementById("finca").value;
-  const lote = document.getElementById("lote");
-  lote.innerHTML = "";
-  for (let i = 1; i <= FINCAS[finca]; i++) {
-    lote.innerHTML += `<option>Lote ${i}</option>`;
-  }
-}
-
-document.getElementById("finca").onchange = cargarLotes;
-
-function cerrarModal() {
-  modal.style.display = "none";
-}
-
-function confirmarUso() {
-  const cant = Number(document.getElementById("cantidad").value);
-  if (!cant || cant <= 0) return;
-
-  activo.stock -= cant;
-
-  const ahora = new Date().toLocaleString("es-AR");
-
-  let texto = `🕒 ${ahora} — Se usaron ${cant} ${activo.unidad}`;
-
-  if (activo.tipo === "campo") {
-    texto += ` en ${document.getElementById("finca").value} – ${document.getElementById("lote").value}`;
+  for (let i = 0; i < offset; i++) {
+    calendario.appendChild(document.createElement("div"));
   }
 
-  activo.movimientos.unshift(texto);
-  cerrarModal();
-  abrirInsumo(Object.keys(INSUMOS).find(k => INSUMOS[k] === activo));
+  for (let d = 1; d <= diasMes; d++) {
+    const fechaKey = `${año}-${mes+1}-${d}`;
+    const div = document.createElement("div");
+    div.className = "dia";
+    div.textContent = d;
+
+    if (lluviaData[fechaKey] > 0) div.classList.add("lluvia");
+
+    div.onclick = () => abrirModalLluvia(fechaKey, d);
+    calendario.appendChild(div);
+  }
+
+  actualizarResumen();
+}
+
+function abrirModalLluvia(key, dia) {
+  diaActual = key;
+  document.getElementById("diaSeleccionado").textContent = `Día ${dia}`;
+  document.getElementById("mmInput").value = lluviaData[key] || 0;
+  document.getElementById("modalLluvia").style.display = "flex";
+}
+
+function cerrarModalLluvia() {
+  document.getElementById("modalLluvia").style.display = "none";
+}
+
+function guardarLluvia() {
+  const mm = Number(document.getElementById("mmInput").value);
+  if (mm < 0 || mm > 400) return;
+
+  lluviaData[diaActual] = mm;
+  cerrarModalLluvia();
+  renderCalendario();
+}
+
+function actualizarResumen() {
+  const valores = Object.values(lluviaData);
+  const total = valores.reduce((a,b)=>a+b,0);
+  const dias = valores.filter(v=>v>0).length;
+
+  totalMesEl.textContent = total;
+  diasLluviaEl.textContent = dias;
+  resumenHome.textContent = `${total} mm · ${dias} días`;
 }
