@@ -36,23 +36,23 @@ const detalle = document.getElementById("detalleInsumo");
 const back = document.getElementById("btnBack");
 const modal = document.getElementById("modalUsar");
 
-// 🔒 ESTADO INICIAL FORZADO
+// 🔒 ESTADO INICIAL FUERTE (Safari safe)
 function estadoInicial() {
-  lista.classList.remove("hidden");
-  detalle.classList.add("hidden");
-  back.classList.add("hidden");
-  modal.classList.add("hidden");
+  lista.style.display = "block";
+  detalle.style.display = "none";
+  back.style.display = "none";
+  modal.style.display = "none";
 }
 estadoInicial();
 
-// -------- NAVEGACIÓN --------
+// ---------- NAVEGACIÓN ----------
 
 function abrirInsumo(id) {
   insumoActivo = INSUMOS[id];
 
-  lista.classList.add("hidden");
-  detalle.classList.remove("hidden");
-  back.classList.remove("hidden");
+  lista.style.display = "none";
+  detalle.style.display = "block";
+  back.style.display = "block";
 
   document.getElementById("nombreInsumo").textContent = insumoActivo.nombre;
   document.getElementById("stockValue").textContent =
@@ -68,7 +68,7 @@ function abrirInsumo(id) {
 
 back.onclick = estadoInicial;
 
-// -------- MOVIMIENTOS --------
+// ---------- MOVIMIENTOS ----------
 
 function renderMovimientos() {
   const ul = document.getElementById("movimientos");
@@ -80,18 +80,19 @@ function renderMovimientos() {
   });
 }
 
-// -------- MODAL --------
+// ---------- MODAL ----------
 
 function abrirModal() {
-  modal.classList.remove("hidden");
+  modal.style.display = "flex";
   cargarFincas();
 }
 
 function cerrarModal() {
-  modal.classList.add("hidden");
+  modal.style.display = "none";
   document.getElementById("cantidadUsar").value = "";
 }
 
+// cerrar tocando fondo
 modal.addEventListener("click", (e) => {
   if (e.target === modal) cerrarModal();
 });
@@ -126,6 +127,7 @@ function confirmarUso() {
   );
 
   cerrarModal();
+
   abrirInsumo(
     Object.keys(INSUMOS).find(k => INSUMOS[k] === insumoActivo)
   );
