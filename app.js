@@ -1,67 +1,19 @@
+let items = JSON.parse(localStorage.getItem("insumos")) || [];
+
 const addBtn = document.getElementById("addBtn");
-const modal = document.getElementById("modal");
+const formSection = document.getElementById("formSection");
 const saveBtn = document.getElementById("saveBtn");
-const cancelBtn = document.getElementById("cancelBtn");
 const nameInput = document.getElementById("nameInput");
 const unitInput = document.getElementById("unitInput");
-const itemsDiv = document.getElementById("items");
+const itemList = document.getElementById("itemList");
 
-let items = JSON.parse(localStorage.getItem("items")) || [];
+// Mostrar / ocultar formulario
+addBtn.addEventListener("click", () => {
+  formSection.classList.toggle("hidden");
+});
 
-function saveItems() {
-  localStorage.setItem("items", JSON.stringify(items));
-}
-
-function renderItems() {
-  itemsDiv.innerHTML = "";
-
-  items.forEach((item, index) => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <h3>${item.name}</h3>
-      <div class="quantity">${item.qty} ${item.unit}</div>
-      <div class="actions">
-        <button class="plus">+</button>
-        <button class="minus">−</button>
-        <button class="delete">🗑</button>
-      </div>
-    `;
-
-    card.querySelector(".plus").onclick = () => {
-      item.qty++;
-      saveItems();
-      renderItems();
-    };
-
-    card.querySelector(".minus").onclick = () => {
-      if (item.qty > 0) item.qty--;
-      saveItems();
-      renderItems();
-    };
-
-    card.querySelector(".delete").onclick = () => {
-      items.splice(index, 1);
-      saveItems();
-      renderItems();
-    };
-
-    itemsDiv.appendChild(card);
-  });
-}
-
-addBtn.onclick = () => {
-  nameInput.value = "";
-  unitInput.value = "";
-  modal.classList.remove("hidden");
-};
-
-cancelBtn.onclick = () => {
-  modal.classList.add("hidden");
-};
-
-saveBtn.onclick = () => {
+// Guardar insumo
+saveBtn.addEventListener("click", () => {
   const name = nameInput.value.trim();
   const unit = unitInput.value;
 
@@ -70,15 +22,34 @@ saveBtn.onclick = () => {
     return;
   }
 
-  items.push({
+  const newItem = {
+    id: Date.now(),
     name,
-    unit,
-    qty: 0
+    unit
+  };
+
+  items.push(newItem);
+  localStorage.setItem("insumos", JSON.stringify(items));
+
+  nameInput.value = "";
+  unitInput.value = "";
+  formSection.classList.add("hidden");
+
+  renderList();
+});
+
+// Renderizar lista
+function renderList() {
+  itemList.innerHTML = "";
+
+  items.forEach(item => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span>${item.name}</span>
+      <span>${item.unit}</span>
+    `;
+    itemList.appendChild(li);
   });
+}
 
-  saveItems();
-  renderItems();
-  modal.classList.add("hidden");
-};
-
-renderItems();
+renderList();
