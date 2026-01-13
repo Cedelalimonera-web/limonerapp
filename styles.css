@@ -1,123 +1,30 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: radial-gradient(circle at top, #2a2f36, #0e1014);
-  color: #fff;
-}
-
-.header {
-  height: 60px;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(30,30,30,0.7);
-}
-
-.container {
-  padding: 20px;
-  max-width: 420px;
-  margin: auto;
-}
-
-/* HOME */
-.home-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 22px;
-  border-radius: 20px;
-  margin-bottom: 18px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.06);
-}
-
 .home-card.small {
-  padding: 14px 18px;
-  border-radius: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
 }
 
-.home-card h2, h3 {
-  margin: 0 0 6px 0;
-}
-
-.big {
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.mini {
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-.status.ok { color: #7cff9a; }
-.status.alert { color: #ffb26d; }
-
-.icon {
-  font-size: 46px;
-}
-
-/* CALENDARIO */
 .calendario {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(7,1fr);
+  gap: 6px;
+  margin: 15px 0;
 }
 
 .dia {
-  padding: 10px 0;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.08);
+  padding: 10px;
   text-align: center;
-  font-size: 13px;
-  cursor: pointer;
+  border-radius: 8px;
 }
 
 .dia.lluvia {
-  background: rgba(80,180,255,0.35);
+  background: rgba(80,160,255,0.4);
 }
 
-/* CARDS */
-.card {
-  background: rgba(255,255,255,0.06);
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 15px;
+.alerta {
+  background: rgba(255,120,120,0.2);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
-
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: #1c1f25;
-  padding: 20px;
-  border-radius: 16px;
-  width: 90%;
-}
-
-/* BOTONES */
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.btn {
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
-  flex: 1;
-}
-
-.blue { background: linear-gradient(#6da8ff,#3f7cdc); }
-.gray { background: rgba(255,255,255,0.2); color:#ccc; }
