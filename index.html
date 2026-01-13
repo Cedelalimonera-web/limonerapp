@@ -5,90 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Limonerapp</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="./styles.css" />
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Fuente (si ya la usabas, no rompe nada) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="logo">🍋 Limonerapp</div>
+
+  <!-- HEADER -->
+  <header class="header">
+    🍋 Limonerapp
   </header>
 
-  <main id="app">
+  <!-- ========================= -->
+  <!-- PANTALLA LISTA INSUMOS -->
+  <!-- ========================= -->
+  <section id="pantalla-lista">
 
-    <!-- HOME -->
-    <section id="home" class="screen active">
+    <h1>Insumos Campo</h1>
 
-      <div class="card clickable" onclick="goToCampo()">
-        <div>
-          <h2>Insumos Campo</h2>
-          <span class="ok">Stock OK</span>
-        </div>
-        <div class="icon">🌿</div>
+    <!-- LISTA DINÁMICA -->
+    <div id="lista-insumos"></div>
+
+    <!-- BOTÓN AGREGAR (si lo usás) -->
+    <button class="btn-primary" onclick="alert('Agregar insumo se verá luego')">
+      + Agregar insumo
+    </button>
+
+  </section>
+
+  <!-- ========================= -->
+  <!-- PANTALLA DETALLE INSUMO -->
+  <!-- ========================= -->
+  <section id="pantalla-detalle" style="display:none">
+
+    <button id="btn-volver" class="btn-link">
+      ← Volver
+    </button>
+
+    <h1 id="detalle-nombre">INSUMO</h1>
+
+    <div class="card">
+      <p id="detalle-stock-valor" class="stock-grande">
+        0 kg
+      </p>
+
+      <!-- Barra stock (si el CSS la define) -->
+      <div class="barra-contenedor">
+        <div id="barra-stock" class="barra-stock"></div>
       </div>
+    </div>
 
-      <div class="card clickable" onclick="goToEmpaque()">
-        <div>
-          <h2>Insumos Empaque</h2>
-          <span class="alert">Alertas</span>
-        </div>
-        <div class="icon">📦</div>
-      </div>
+    <!-- BOTONES -->
+    <div class="botones-accion">
+      <button id="btn-ingresar" class="btn-success">+ Ingresar</button>
+      <button id="btn-usar" class="btn-warning">- Usar</button>
+      <button id="btn-transferir" class="btn-disabled" disabled>
+        Transferir
+      </button>
+    </div>
 
-      <div class="card clickable small" onclick="goToLluvia()">
-        <div>
-          <h3>🌧️ Lluvia</h3>
-          <p>enero · 149 mm · 5 días</p>
-          <p class="warning">⚠️ 15–18 ene (4 días)</p>
-        </div>
-      </div>
+    <!-- MOVIMIENTOS -->
+    <h2>Últimos movimientos</h2>
+    <div id="lista-movimientos"></div>
 
-    </section>
+  </section>
 
-    <!-- CAMPO -->
-    <section id="campo" class="screen">
-      <button class="back" onclick="goHome()">← Volver</button>
-      <h1>Insumos Campo</h1>
+  <!-- ========================= -->
+  <!-- SCRIPT ÚNICO -->
+  <!-- ========================= -->
+  <script src="app.js"></script>
 
-      <div class="list">
-        <div class="item">UREA · Stock: 2080 kg</div>
-        <div class="item">Fosfito K · Stock: 480 kg</div>
-        <div class="item">Glifosato · Stock: 120 l</div>
-      </div>
-    </section>
-
-    <!-- EMPAQUE -->
-    <section id="empaque" class="screen">
-      <button class="back" onclick="goHome()">← Volver</button>
-      <h1>Insumos Empaque</h1>
-
-      <div class="list">
-        <div class="item">Cajas · Stock: 1200</div>
-        <div class="item">Bins · Stock: 80</div>
-        <div class="item">Film · Stock: 14</div>
-      </div>
-    </section>
-
-    <!-- LLUVIA -->
-    <section id="lluvia" class="screen">
-      <button class="back" onclick="goHome()">← Volver</button>
-      <h1>Lluvia</h1>
-      <p>Pantalla de lluvia (histórico y calendario vendrán después)</p>
-    </section>
-
-  </main>
-
-  <!-- JS -->
-  <script>
-    function show(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    function goHome() { show('home'); }
-    function goToCampo() { show('campo'); }
-    function goToEmpaque() { show('empaque'); }
-    function goToLluvia() { show('lluvia'); }
-  </script>
 </body>
 </html>
