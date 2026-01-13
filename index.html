@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Limonerapp</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -15,60 +15,46 @@
 
 <main class="container">
 
-  <!-- HOME -->
-  <section id="home">
+<section id="home">
+  <div class="home-card campo" onclick="alert('Campo')">
+    <h2>Insumos Campo</h2>
+  </div>
 
-    <div class="home-card campo" onclick="irCampo()">
-      <div>
-        <h2>Insumos Campo</h2>
-        <p class="status ok">Stock OK</p>
-        <p class="big">3 ítems</p>
-      </div>
-      <div class="icon">🌿</div>
-    </div>
+  <div class="home-card empaque" onclick="alert('Empaque')">
+    <h2>Insumos Empaque</h2>
+  </div>
 
-    <div class="home-card empaque" onclick="irEmpaque()">
-      <div>
-        <h2>Insumos Empaque</h2>
-        <p class="status alert">2 alertas</p>
-        <p class="big">3 ítems</p>
-      </div>
-      <div class="icon">📦</div>
-    </div>
+  <div class="home-card lluvia small" onclick="irLluvia()">
+    <h3>🌧 Lluvia</h3>
+    <p class="mini" id="lluviaResumen">Enero · 0 mm · 0 días</p>
+  </div>
+</section>
 
-    <!-- CARD LLUVIA (SECUNDARIO) -->
-    <div class="home-card lluvia small" onclick="irLluvia()">
-      <div>
-        <h3>🌧 Lluvia</h3>
-        <p class="mini" id="lluviaResumen">0 mm · 0 días</p>
-      </div>
-    </div>
+<section id="lluvia" style="display:none">
+  <div class="filtros">
+    <select id="anio"></select>
+    <select id="mes"></select>
+  </div>
 
-  </section>
+  <div id="alertaLluvia" class="alerta" style="display:none"></div>
 
-  <!-- LLUVIA -->
-  <section id="lluvia" style="display:none">
-    <h1 id="mesTitulo"></h1>
+  <div class="calendario" id="calendario"></div>
 
-    <div class="calendario" id="calendario"></div>
-
-    <div class="card resumen">
-      <p><strong>Total del mes:</strong> <span id="totalMes">0</span> mm</p>
-      <p><strong>Días con lluvia:</strong> <span id="diasLluvia">0</span></p>
-    </div>
-  </section>
+  <div class="card">
+    <p>Total mes: <strong><span id="totalMes">0</span> mm</strong></p>
+    <p>Días con lluvia: <strong><span id="diasLluvia">0</span></strong></p>
+  </div>
+</section>
 
 </main>
 
-<!-- MODAL LLUVIA -->
 <div class="modal" id="modalLluvia" style="display:none">
   <div class="modal-content">
-    <h2 id="diaSeleccionado"></h2>
-    <label>Milímetros (0–400)</label>
+    <h2 id="diaTxt"></h2>
     <input type="number" id="mmInput" min="0" max="400">
     <div class="actions">
-      <button class="btn gray" onclick="cerrarModalLluvia()">Cancelar</button>
-      <button class="btn blue" onclick="guardarLluvia()">Guardar</button>
+      <button onclick="cerrarModal()">Cancelar</button>
+      <button onclick="guardarLluvia()">Guardar</button>
     </div>
   </div>
 </div>
