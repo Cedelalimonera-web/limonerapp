@@ -30,96 +30,45 @@
     <div class="home-card empaque" onclick="irEmpaque()">
       <div>
         <h2>Insumos Empaque</h2>
-        <p class="status alert">2 alertas activas</p>
+        <p class="status alert">2 alertas</p>
         <p class="big">3 ítems</p>
       </div>
       <div class="icon">📦</div>
     </div>
 
+    <!-- CARD LLUVIA (SECUNDARIO) -->
+    <div class="home-card lluvia small" onclick="irLluvia()">
+      <div>
+        <h3>🌧 Lluvia</h3>
+        <p class="mini" id="lluviaResumen">0 mm · 0 días</p>
+      </div>
+    </div>
+
   </section>
 
-  <!-- LISTA CAMPO -->
-  <section id="listaCampo" style="display:none">
-    <h1>Insumos Campo</h1>
+  <!-- LLUVIA -->
+  <section id="lluvia" style="display:none">
+    <h1 id="mesTitulo"></h1>
 
-    <div class="card insumo" onclick="abrirInsumo('urea')">
-      <strong>UREA</strong>
-      <span>Stock: 2080 kg</span>
-    </div>
+    <div class="calendario" id="calendario"></div>
 
-    <div class="card insumo" onclick="abrirInsumo('fosfito')">
-      <strong>Fosfito K</strong>
-      <span>Stock: 480 kg</span>
-    </div>
-
-    <div class="card insumo" onclick="abrirInsumo('glifosato')">
-      <strong>Glifosato</strong>
-      <span>Stock: 120 l</span>
-    </div>
-  </section>
-
-  <!-- LISTA EMPAQUE -->
-  <section id="listaEmpaque" style="display:none">
-    <h1>Insumos Empaque</h1>
-
-    <div class="card insumo" onclick="abrirInsumo('cajas')">
-      <strong>Cajas Cartón</strong>
-      <span>Stock: 1500 un</span>
-    </div>
-
-    <div class="card insumo" onclick="abrirInsumo('bins')">
-      <strong>Bins</strong>
-      <span>Stock: 320 un</span>
-    </div>
-
-    <div class="card insumo" onclick="abrirInsumo('film')">
-      <strong>Film</strong>
-      <span>Stock: 45 rollos</span>
-    </div>
-  </section>
-
-  <!-- DETALLE -->
-  <section id="detalle" style="display:none">
-    <h1 id="detalleNombre"></h1>
-    <p id="detalleUbicacion"></p>
-
-    <div class="card">
-      <span class="label">Stock actual</span>
-      <div class="value" id="detalleStock"></div>
-    </div>
-
-    <div class="actions">
-      <button class="btn green">+ Ingresar</button>
-      <button class="btn orange" onclick="abrirModal()">− Usar</button>
-    </div>
-
-    <div class="card">
-      <h2>Últimos movimientos</h2>
-      <ul id="movimientos"></ul>
+    <div class="card resumen">
+      <p><strong>Total del mes:</strong> <span id="totalMes">0</span> mm</p>
+      <p><strong>Días con lluvia:</strong> <span id="diasLluvia">0</span></p>
     </div>
   </section>
 
 </main>
 
-<!-- MODAL USAR -->
-<div class="modal" id="modal" style="display:none">
+<!-- MODAL LLUVIA -->
+<div class="modal" id="modalLluvia" style="display:none">
   <div class="modal-content">
-    <h2>Usar</h2>
-
-    <label>Cantidad</label>
-    <input type="number" id="cantidad">
-
-    <div id="campoExtra">
-      <label>Finca</label>
-      <select id="finca"></select>
-
-      <label>Lote</label>
-      <select id="lote"></select>
-    </div>
-
+    <h2 id="diaSeleccionado"></h2>
+    <label>Milímetros (0–400)</label>
+    <input type="number" id="mmInput" min="0" max="400">
     <div class="actions">
-      <button class="btn gray" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn orange" onclick="confirmarUso()">Confirmar</button>
+      <button class="btn gray" onclick="cerrarModalLluvia()">Cancelar</button>
+      <button class="btn blue" onclick="guardarLluvia()">Guardar</button>
     </div>
   </div>
 </div>
