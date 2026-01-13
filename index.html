@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Limonerapp</title>
-
-  <!-- CSS con anti-cache -->
-  <link rel="stylesheet" href="styles.css?v=2">
-
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
 <header class="header">
   <div class="logo">🍋 Limonerapp</div>
-  <div class="back" id="btnBack" style="display:none">←</div>
+  <div class="back" id="btnBack" onclick="volverHome()" style="display:none">←</div>
 </header>
 
 <main class="container">
@@ -21,7 +18,7 @@
   <!-- ================= HOME ================= -->
   <section id="home">
 
-    <div class="home-card campo" onclick="alert('Campo')">
+    <div class="home-card campo" onclick="irCampo()">
       <div>
         <h2>Insumos Campo</h2>
         <p class="status ok">Stock OK</p>
@@ -29,7 +26,7 @@
       <div class="icon">🌿</div>
     </div>
 
-    <div class="home-card empaque" onclick="alert('Empaque')">
+    <div class="home-card empaque" onclick="irEmpaque()">
       <div>
         <h2>Insumos Empaque</h2>
         <p class="status alert">Alertas</p>
@@ -37,7 +34,6 @@
       <div class="icon">📦</div>
     </div>
 
-    <!-- ===== CARD LLUVIA (SECUNDARIO) ===== -->
     <div class="home-card lluvia small" onclick="irLluvia()">
       <div>
         <h3>🌧 Lluvia</h3>
@@ -47,6 +43,21 @@
     </div>
 
   </section>
+
+  <!-- ================= CAMPO ================= -->
+  <section id="campo" style="display:none">
+    <h2>Insumos Campo</h2>
+    <div id="listaCampo" class="lista"></div>
+  </section>
+
+  <!-- ================= EMPAQUE ================= -->
+  <section id="empaque" style="display:none">
+    <h2>Insumos Empaque</h2>
+    <div id="listaEmpaque" class="lista"></div>
+  </section>
+
+  <!-- ================= DETALLE ================= -->
+  <section id="detalle" style="display:none"></section>
 
   <!-- ================= LLUVIA ================= -->
   <section id="lluvia" style="display:none">
@@ -58,7 +69,7 @@
 
     <div id="alertaLluvia" class="alerta" style="display:none"></div>
 
-    <div class="calendario" id="calendario"></div>
+    <div id="calendario" class="calendario"></div>
 
     <div class="card">
       <p>Total del mes: <strong><span id="totalMes">0</span> mm</strong></p>
@@ -69,23 +80,21 @@
 
 </main>
 
-<!-- ================= MODAL LLUVIA ================= -->
-<div class="modal" id="modalLluvia" style="display:none">
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal" style="display:none">
   <div class="modal-content">
-    <h2 id="diaTxt"></h2>
-
-    <label>Milímetros (0–400)</label>
-    <input type="number" id="mmInput" min="0" max="400">
+    <h2 id="modalTitulo"></h2>
+    <input type="number" id="modalCantidad" placeholder="Cantidad">
+    <select id="modalFinca"></select>
+    <select id="modalLote"></select>
 
     <div class="actions">
       <button class="btn gray" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn blue" onclick="guardarLluvia()">Guardar</button>
+      <button class="btn blue" onclick="confirmarModal()">Confirmar</button>
     </div>
   </div>
 </div>
 
-<!-- JS -->
-<script src="app.js?v=2"></script>
-
+<script src="app.js?v=3"></script>
 </body>
 </html>
