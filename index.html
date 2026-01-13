@@ -4,27 +4,181 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LimonerApp</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
 
-  <header>
-    <h1>🍋 LimonerApp</h1>
-    <p>Control simple de insumos</p>
-  </header>
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    header {
+      padding: 16px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      background: #020617;
+    }
+
+    main {
+      padding: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      width: 100%;
+      background: #22c55e;
+      color: #052e16;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #020617;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      margin: 0 0 6px 0;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0 0 10px 0;
+      color: #cbd5f5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .plus { background: #16a34a; color: white; }
+    .minus { background: #eab308; color: #422006; }
+    .delete { background: #dc2626; color: white; }
+
+    dialog {
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      width: 90%;
+      max-width: 400px;
+      background: #020617;
+      color: white;
+    }
+
+    dialog input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+
+    dialog button {
+      width: 100%;
+      background: #22c55e;
+      color: #052e16;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>🍋 LimonerApp</header>
 
   <main>
-    <section class="add-insumo">
-      <input type="text" id="nombreInsumo" placeholder="Insumo (Ej: Urea)" />
-      <input type="number" id="cantidadInsumo" placeholder="Cantidad" />
-      <button onclick="agregarInsumo()">➕ Agregar</button>
-    </section>
-
-    <section class="lista">
-      <ul id="listaInsumos"></ul>
-    </section>
+    <button class="add-btn" onclick="openDialog()">➕ Agregar insumo</button>
+    <div id="listado"></div>
   </main>
 
-  <script src="app.js"></script>
+  <dialog id="dialogo">
+    <h3>Nuevo insumo</h3>
+    <input id="nombre" placeholder="Nombre del insumo" />
+    <input id="cantidad" type="number" placeholder="Cantidad inicial" />
+    <input id="unidad" placeholder="Unidad (kg, lts, un)" />
+    <button onclick="guardar()">Guardar</button>
+  </dialog>
+
+  <script>
+    const listado = document.getElementById("listado");
+    const dialogo = document.getElementById("dialogo");
+
+    function cargar() {
+      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
+      listado.innerHTML = "";
+
+      if (datos.length === 0) {
+        listado.innerHTML = "<p>No hay insumos cargados.</p>";
+        return;
+      }
+
+      datos.forEach((i, index) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${i.nombre}</h3>
+          <p>${i.cantidad} ${i.unidad}</p>
+          <div class="actions">
+            <button class="plus" onclick="modificar(${index}, 1)">➕</button>
+            <button class="minus" onclick="modificar(${index}, -1)">➖</button>
+            <button class="delete" onclick="eliminar(${index})">🗑️</button>
+          </div>
+        `;
+        listado.appendChild(div);
+      });
+    }
+
+    function openDialog() {
+      dialogo.showModal();
+    }
+
+    function guardar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const cantidad = parseFloat(document.getElementById("cantidad").value);
+      const unidad = document.getElementById("unidad").value.trim();
+
+      if (!nombre || isNaN(cantidad) || !unidad) return;
+
+      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
+      datos.push({ nombre, cantidad, unidad });
+      localStorage.setItem("insumos", JSON.stringify(datos));
+
+      dialogo.close();
+      document.getElementById("nombre").value = "";
+      document.getElementById("cantidad").value = "";
+      document.getElementById("unidad").value = "";
+
+      cargar();
+    }
+
+    function modificar(index, delta) {
+      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
+      datos[index].cantidad += delta;
+      if (datos[index].cantidad < 0) datos[index].cantidad = 0;
+      localStorage.setItem("insumos", JSON.stringify(datos));
+      cargar();
+    }
+
+    function eliminar(index) {
+      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
+      datos.splice(index, 1);
+      localStorage.setItem("insumos", JSON.stringify(datos));
+      cargar();
+    }
+
+    cargar();
+  </script>
 </body>
 </html>
