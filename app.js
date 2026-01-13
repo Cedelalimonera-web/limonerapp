@@ -1,55 +1,78 @@
 // ================================
-// LimonerApp – app.js
+// LimonerApp – app.js (ESTABLE)
+// Base visual avanzada + lógica sólida
 // ================================
 
 let insumos = JSON.parse(localStorage.getItem("insumos")) || [];
-let insumoActual = null;
+let insumoActualId = null;
 
-// ----------------
-// Inicialización
-// ----------------
-document.addEventListener("DOMContentLoaded", () => {
-  renderLista();
-});
-
-// ----------------
-// Guardar en localStorage
-// ----------------
+// -------------------------------
+// Utilidades
+// -------------------------------
 function guardar() {
   localStorage.setItem("insumos", JSON.stringify(insumos));
 }
 
-// ----------------
-// Render lista principal
-// ----------------
+function hoy() {
+  return new Date().toLocaleString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function asegurarMovimientos(insumo) {
+  if (!Array.isArray(insumo.movimientos)) {
+    insumo.movimientos = [];
+  }
+}
+
+// -------------------------------
+// Render lista de insumos
+// -------------------------------
 function renderLista() {
   const contenedor = document.getElementById("lista-insumos");
   if (!contenedor) return;
 
   contenedor.innerHTML = "";
 
-  insumos.forEach((insumo, index) => {
-    const div = document.createElement("div");
-    div.className = "insumo-card";
-    div.innerHTML = `
-      <h3>${insumo.nombre}</h3>
-      <p>Stock: <strong>${insumo.stock} ${insumo.unidad}</strong></p>
+  insumos.forEach(insumo => {
+    asegurarMovimientos(insumo);
+
+    const card = document.createElement("div");
+    card.className = "insumo-card";
+    card.innerHTML = `
+      <strong>${insumo.nombre}</strong>
+      <span>Stock: ${insumo.stock} ${insumo.unidad}</span>
     `;
-    div.onclick = () => abrirDetalle(index);
-    contenedor.appendChild(div);
+
+    card.onclick = () => abrirDetalle(insumo.id);
+    contenedor.appendChild(card);
   });
 }
 
-// ----------------
-// Abrir detalle insumo
-// ----------------
-function abrirDetalle(index) {
-  insumoActual = index;
-  const insumo = insumos[index];
+// -------------------------------
+// Abrir detalle
+// -------------------------------
+function abrirDetalle(id) {
+  insumoActualId = id;
+  const insumo = insumos.find(i => i.id === id);
+  if (!insumo) return;
+
+  asegurarMovimientos(insumo);
 
   document.getElementById("detalle-nombre").innerText = insumo.nombre;
-  document.getElementById("detalle-stock").innerText =
-    `Stock actual: ${insumo.stock} ${insumo.unidad}`;
+  document.getElementById("detalle-stock-valor").innerText =
+    `${insumo.stock} ${insumo.unidad}`;
+
+  // Barra de stock (si existe)
+  const barra = document.getElementById("barra-stock");
+  if (barra && insumo.stockMaximo) {
+    const pct = Math.min(100, (insumo.stock / insumo.stockMaximo) * 100);
+    barra.style.width = pct + "%";
+  }
 
   renderMovimientos();
 
@@ -57,75 +80,84 @@ function abrirDetalle(index) {
   document.getElementById("pantalla-detalle").style.display = "block";
 }
 
-// ----------------
+// -------------------------------
 // Volver
-// ----------------
+// -------------------------------
 function volver() {
   document.getElementById("pantalla-detalle").style.display = "none";
   document.getElementById("pantalla-lista").style.display = "block";
+  insumoActualId = null;
 }
 
-// ----------------
+// -------------------------------
 // Ingresar stock
-// ----------------
+// -------------------------------
 function ingresarStock() {
-  const cantidad = prompt("Cantidad a ingresar:");
-  if (!cantidad || isNaN(cantidad)) return;
+  const insumo = insumos.find(i => i.id === insumoActualId);
+  if (!insumo) return;
 
-  const insumo = insumos[insumoActual];
-  const valor = Number(cantidad);
+  const cantidad = Number(prompt("Cantidad a ingresar:"));
+  if (!cantidad || cantidad <= 0) return;
 
-  insumo.stock += valor;
+  const detalle = prompt("Detalle (opcional):") || "Ingreso a almacén";
+
+  insumo.stock += cantidad;
   insumo.movimientos.push({
     tipo: "Ingreso",
-    cantidad: valor,
-    fecha: new Date().toLocaleString()
+    cantidad,
+    unidad: insumo.unidad,
+    detalle,
+    fecha: hoy()
   });
 
   guardar();
-  abrirDetalle(insumoActual);
+  abrirDetalle(insumo.id);
 }
 
-// ----------------
+// -------------------------------
 // Usar stock
-// ----------------
+// -------------------------------
 function usarStock() {
-  const cantidad = prompt("Cantidad a usar:");
-  if (!cantidad || isNaN(cantidad)) return;
+  const insumo = insumos.find(i => i.id === insumoActualId);
+  if (!insumo) return;
 
-  const detalle = prompt("Detalle (ej: Cuadro 5):") || "Uso";
-  const valor = Number(cantidad);
+  const cantidad = Number(prompt("Cantidad a usar:"));
+  if (!cantidad || cantidad <= 0) return;
 
-  const insumo = insumos[insumoActual];
-  if (valor > insumo.stock) {
+  if (cantidad > insumo.stock) {
     alert("Stock insuficiente");
     return;
   }
 
-  insumo.stock -= valor;
+  const detalle = prompt("Destino / detalle (ej: Finca – Lote):");
+  if (!detalle) return;
+
+  insumo.stock -= cantidad;
   insumo.movimientos.push({
     tipo: "Uso",
-    cantidad: valor,
-    detalle: detalle,
-    fecha: new Date().toLocaleString()
+    cantidad,
+    unidad: insumo.unidad,
+    detalle,
+    fecha: hoy()
   });
 
   guardar();
-  abrirDetalle(insumoActual);
+  abrirDetalle(insumo.id);
 }
 
-// ----------------
+// -------------------------------
 // Render movimientos
-// ----------------
+// -------------------------------
 function renderMovimientos() {
-  const lista = document.getElementById("lista-movimientos");
-  if (!lista) return;
+  const contenedor = document.getElementById("lista-movimientos");
+  if (!contenedor) return;
 
-  lista.innerHTML = "";
-  const insumo = insumos[insumoActual];
+  contenedor.innerHTML = "";
 
-  if (!insumo.movimientos || insumo.movimientos.length === 0) {
-    lista.innerHTML = "<p style='opacity:.6'>Sin movimientos</p>";
+  const insumo = insumos.find(i => i.id === insumoActualId);
+  if (!insumo || insumo.movimientos.length === 0) {
+    contenedor.innerHTML =
+      "<p style='opacity:.6'>Sin movimientos registrados</p>";
     return;
   }
 
@@ -134,19 +166,28 @@ function renderMovimientos() {
     .reverse()
     .forEach(mov => {
       const div = document.createElement("div");
-      div.className = "movimiento";
+      div.className = "movimiento-card";
       div.innerHTML = `
-        <strong>${mov.tipo}</strong> – ${mov.cantidad} ${insumo.unidad}<br>
-        ${mov.detalle ? mov.detalle + "<br>" : ""}
-        <small>${mov.fecha}</small>
+        <div>
+          <strong>${mov.fecha}</strong> — 
+          ${mov.tipo === "Ingreso" ? "Se ingresaron" : "Se usaron"}
+          ${mov.cantidad} ${mov.unidad}
+        </div>
+        <div style="opacity:.8">${mov.detalle}</div>
       `;
-      lista.appendChild(div);
+      contenedor.appendChild(div);
     });
 }
 
-// ----------------
-// BOTONES
-// ----------------
+// -------------------------------
+// Botones
+// -------------------------------
 document.getElementById("btn-ingresar")?.addEventListener("click", ingresarStock);
 document.getElementById("btn-usar")?.addEventListener("click", usarStock);
+document.getElementById("btn-transferir")?.setAttribute("disabled", true);
 document.getElementById("btn-volver")?.addEventListener("click", volver);
+
+// -------------------------------
+// Init
+// -------------------------------
+document.addEventListener("DOMContentLoaded", renderLista);
