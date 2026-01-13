@@ -1,38 +1,50 @@
-* {
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
 body {
   margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
   background: linear-gradient(180deg, #020617, #020617);
   color: white;
 }
 
-.header {
-  padding: 24px;
-  font-size: 26px;
-  font-weight: bold;
-}
-
 .container {
-  padding: 16px;
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
 }
 
-.btn-agregar {
-  background: #e5e7eb;
-  color: #2563eb;
+h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 16px;
   border: none;
   border-radius: 20px;
-  padding: 10px 16px;
   font-size: 16px;
+  margin-bottom: 15px;
 }
 
-.card {
-  margin-top: 16px;
-  background: #020617;
-  border-radius: 16px;
-  padding: 20px;
+#btnAgregar {
+  background: #e5e7eb;
+  color: #2563eb;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: none;
+}
+
+#guardar {
+  background: #22c55e;
+  color: black;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
 }
 
 ul {
@@ -41,49 +53,8 @@ ul {
 }
 
 li {
-  padding: 8px 0;
-  border-bottom: 1px solid #1f2937;
-}
-
-/* MODAL */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: #020617;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 320px;
-}
-
-.modal-content input,
-.modal-content select {
-  width: 100%;
+  background: #111827;
   padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-}
-
-.modal-actions button {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
+  border-radius: 10px;
+  margin-bottom: 8px;
 }
