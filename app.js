@@ -8,7 +8,7 @@ const INSUMOS = {
   urea: {
     nombre: "UREA",
     unidad: "kg",
-    stock: 2100,
+    stock: 2080,
     capacidad: 5000,
     movimientos: []
   },
@@ -77,9 +77,14 @@ function renderMovimientos() {
   insumoActivo.movimientos.forEach(m => {
     const li = document.createElement("li");
 
-    li.textContent =
-      `🕒 ${m.fecha} ${m.hora} — ` +
-      `Se usaron ${m.cantidad} ${m.unidad} en ${m.finca} – ${m.lote}`;
+    // 🔁 Compatibilidad con movimientos viejos (string)
+    if (typeof m === "string") {
+      li.textContent = m;
+    } else {
+      li.textContent =
+        `🕒 ${m.fecha} ${m.hora} — ` +
+        `Se usaron ${m.cantidad} ${m.unidad} en ${m.finca} – ${m.lote}`;
+    }
 
     ul.appendChild(li);
   });
@@ -97,7 +102,6 @@ function cerrarModal() {
   document.getElementById("cantidadUsar").value = "";
 }
 
-// cerrar tocando fondo
 modal.addEventListener("click", (e) => {
   if (e.target === modal) cerrarModal();
 });
@@ -133,7 +137,10 @@ function confirmarUso() {
 
   const ahora = new Date();
   const fecha = ahora.toLocaleDateString("es-AR");
-  const hora = ahora.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+  const hora = ahora.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
   insumoActivo.stock -= cant;
 
