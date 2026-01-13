@@ -30,12 +30,26 @@ const INSUMOS = {
 
 let insumoActivo = null;
 
+// Elementos
 const lista = document.getElementById("listaCampo");
 const detalle = document.getElementById("detalleInsumo");
 const back = document.getElementById("btnBack");
+const modal = document.getElementById("modalUsar");
+
+// 🔒 ESTADO INICIAL FORZADO
+function estadoInicial() {
+  lista.classList.remove("hidden");
+  detalle.classList.add("hidden");
+  back.classList.add("hidden");
+  modal.classList.add("hidden");
+}
+estadoInicial();
+
+// -------- NAVEGACIÓN --------
 
 function abrirInsumo(id) {
   insumoActivo = INSUMOS[id];
+
   lista.classList.add("hidden");
   detalle.classList.remove("hidden");
   back.classList.remove("hidden");
@@ -52,11 +66,9 @@ function abrirInsumo(id) {
   renderMovimientos();
 }
 
-back.onclick = () => {
-  detalle.classList.add("hidden");
-  lista.classList.remove("hidden");
-  back.classList.add("hidden");
-};
+back.onclick = estadoInicial;
+
+// -------- MOVIMIENTOS --------
 
 function renderMovimientos() {
   const ul = document.getElementById("movimientos");
@@ -68,8 +80,23 @@ function renderMovimientos() {
   });
 }
 
+// -------- MODAL --------
+
 function abrirModal() {
-  document.getElementById("modalUsar").classList.remove("hidden");
+  modal.classList.remove("hidden");
+  cargarFincas();
+}
+
+function cerrarModal() {
+  modal.classList.add("hidden");
+  document.getElementById("cantidadUsar").value = "";
+}
+
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) cerrarModal();
+});
+
+function cargarFincas() {
   const fincaSel = document.getElementById("fincaSelect");
   fincaSel.innerHTML = "";
   Object.keys(FINCAS).forEach(f => {
@@ -89,10 +116,6 @@ function cargarLotes() {
 
 document.getElementById("fincaSelect").onchange = cargarLotes;
 
-function cerrarModal() {
-  document.getElementById("modalUsar").classList.add("hidden");
-}
-
 function confirmarUso() {
   const cant = Number(document.getElementById("cantidadUsar").value);
   if (!cant || cant <= 0) return;
@@ -103,5 +126,7 @@ function confirmarUso() {
   );
 
   cerrarModal();
-  abrirInsumo(Object.keys(INSUMOS).find(k => INSUMOS[k] === insumoActivo));
+  abrirInsumo(
+    Object.keys(INSUMOS).find(k => INSUMOS[k] === insumoActivo)
+  );
 }
