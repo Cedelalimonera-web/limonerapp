@@ -1,91 +1,82 @@
-// ==============================
-// LimonerApp - app.js
-// ==============================
+const STORAGE_KEY = "limonerapp_urea";
 
-// Traemos elementos del DOM
-const btnAgregar = document.getElementById("btnAgregar");
-const btnGuardar = document.getElementById("btnGuardar");
-const form = document.getElementById("formInsumo");
-const lista = document.getElementById("listaInsumos");
+const DEFAULT_DATA = {
+  nombre: "UREA",
+  ubicacion: "Almacén Campo",
+  stock: 2400,
+  stockMinimo: 200,
+  capacidadMax: 5000,
+  movimientos: [
+    { texto: "Se usaron 600 kg en Lote 4", tipo: "out" },
+    { texto: "Se ingresaron 1.200 kg (Compra)", tipo: "in" }
+  ]
+};
 
-const inputNombre = document.getElementById("nombre");
-const inputCantidad = document.getElementById("cantidad");
-const selectUnidad = document.getElementById("unidad");
-
-// ==============================
-// LocalStorage helpers
-// ==============================
-function obtenerInsumos() {
-  return JSON.parse(localStorage.getItem("insumos")) || [];
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  return saved ? JSON.parse(saved) : DEFAULT_DATA;
 }
 
-function guardarInsumos(insumos) {
-  localStorage.setItem("insumos", JSON.stringify(insumos));
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// ==============================
-// Render de la lista
-// ==============================
-function renderInsumos() {
-  const insumos = obtenerInsumos();
-  lista.innerHTML = "";
+let data = loadData();
 
-  if (insumos.length === 0) {
-    lista.innerHTML = "<p style='opacity:0.6'>Sin insumos cargados</p>";
-    return;
-  }
+const stockValue = document.getElementById("stockValue");
+const stockBar = document.getElementById("stockBar");
+const movimientosList = document.getElementById("movimientos");
 
-  insumos.forEach((insumo) => {
-    const item = document.createElement("div");
-    item.className = "insumo-item";
-    item.innerText = `${insumo.nombre} – ${insumo.cantidad} ${insumo.unidad}`;
-    lista.appendChild(item);
+function render() {
+  stockValue.textContent = `${data.stock.toLocaleString()} kg`;
+
+  const percent = Math.min(
+    (data.stock / data.capacidadMax) * 100,
+    100
+  );
+  stockBar.style.width = percent + "%";
+
+  movimientosList.innerHTML = "";
+  data.movimientos.forEach(m => {
+    const li = document.createElement("li");
+    li.textContent = m.texto;
+    movimientosList.appendChild(li);
   });
 }
 
-// ==============================
-// Eventos
-// ==============================
+document.getElementById("btnIngresar").onclick = () => {
+  const cantidad = prompt("Cantidad a ingresar (kg):");
+  const n = Number(cantidad);
+  if (!n || n <= 0) return;
 
-// Mostrar / ocultar formulario
-btnAgregar.addEventListener("click", () => {
-  form.classList.toggle("hidden");
-});
+  data.stock += n;
+  data.movimientos.unshift({
+    texto: `Se ingresaron ${n} kg`,
+    tipo: "in"
+  });
 
-// Guardar insumo
-btnGuardar.addEventListener("click", () => {
-  const nombre = inputNombre.value.trim();
-  const cantidad = inputCantidad.value;
-  const unidad = selectUnidad.value;
+  saveData(data);
+  render();
+};
 
-  if (!nombre || !cantidad) {
-    alert("Completá nombre y cantidad");
+document.getElementById("btnUsar").onclick = () => {
+  const cantidad = prompt("Cantidad a usar (kg):");
+  const n = Number(cantidad);
+  if (!n || n <= 0) return;
+
+  if (n > data.stock) {
+    alert("Stock insuficiente");
     return;
   }
 
-  const insumo = {
-    nombre: nombre,
-    cantidad: cantidad,
-    unidad: unidad
-  };
+  data.stock -= n;
+  data.movimientos.unshift({
+    texto: `Se usaron ${n} kg`,
+    tipo: "out"
+  });
 
-  const insumos = obtenerInsumos();
-  insumos.push(insumo);
-  guardarInsumos(insumos);
+  saveData(data);
+  render();
+};
 
-  // Limpiar formulario
-  inputNombre.value = "";
-  inputCantidad.value = "";
-  selectUnidad.value = "kg";
-
-  // Ocultar formulario
-  form.classList.add("hidden");
-
-  // Volver a renderizar
-  renderInsumos();
-});
-
-// ==============================
-// Init
-// ==============================
-renderInsumos();
+render();
