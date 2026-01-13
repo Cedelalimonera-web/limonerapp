@@ -5,67 +5,115 @@
 
 body {
   margin: 0;
-  background: #f4f6f3;
-  color: #2c2c2c;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  color: white;
+  min-height: 100vh;
 }
 
 header {
-  background: #2e7d32;
-  color: white;
-  padding: 1rem;
   text-align: center;
-}
-
-header h1 {
-  margin: 0;
+  padding: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: #020617;
 }
 
 main {
-  padding: 1rem;
+  padding: 20px;
 }
 
-.add-insumo {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.add-insumo input {
-  flex: 1;
-  padding: 0.6rem;
-  font-size: 1rem;
-}
-
-.add-insumo button {
-  padding: 0.6rem 1rem;
-  font-size: 1.2rem;
-  background: #2e7d32;
-  color: white;
+.add-btn {
+  width: 100%;
+  padding: 15px;
+  background: #22c55e;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  cursor: pointer;
 }
 
-.lista ul {
-  list-style: none;
-  padding: 0;
+.card {
+  background: #020617;
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
-.insumo {
-  background: white;
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  border-radius: 6px;
+.card h3 {
+  margin: 0 0 5px 0;
+}
+
+.quantity {
+  opacity: 0.8;
+  margin-bottom: 10px;
+}
+
+.actions {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+}
+
+.actions button {
+  flex: 1;
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.plus { background: #16a34a; }
+.minus { background: #eab308; }
+.delete { background: #dc2626; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
   align-items: center;
+  justify-content: center;
 }
 
-.insumo-nombre {
-  font-weight: 600;
+.hidden {
+  display: none;
 }
 
-.controles button {
-  margin-left: 0.3rem;
-  font-size: 1rem;
-  padding: 0.3rem 0.6rem;
+.modal-content {
+  background: #020617;
+  padding: 20px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save {
+  background: #22c55e;
+  flex: 1;
+}
+
+.cancel {
+  background: #334155;
+  flex: 1;
 }
