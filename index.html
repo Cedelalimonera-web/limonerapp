@@ -1,106 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Limonerapp</title>
 
-  <!-- CSS (versión forzada para romper cache) -->
-  <link rel="stylesheet" href="styles.css?v=99">
+  <!-- CSS -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
+  <header class="header">
+    <div class="logo">🍋 Limonerapp</div>
+  </header>
 
-<header class="header">
-  <div class="logo">🍋 Limonerapp</div>
-  <div class="back" id="btnBack" onclick="volverHome()" style="display:none">←</div>
-</header>
+  <main class="container">
 
-<main class="container">
-
-  <!-- ================= HOME ================= -->
-  <section id="home">
-
-    <div class="home-card campo" onclick="irCampo()">
-      <div>
+    <!-- INSUMOS CAMPO -->
+    <div class="card clickable" onclick="goToCampo()">
+      <div class="card-text">
         <h2>Insumos Campo</h2>
-        <p class="status ok">Stock OK</p>
+        <p class="ok">Stock OK</p>
       </div>
       <div class="icon">🌿</div>
     </div>
 
-    <div class="home-card empaque" onclick="irEmpaque()">
-      <div>
+    <!-- INSUMOS EMPAQUE -->
+    <div class="card clickable" onclick="goToEmpaque()">
+      <div class="card-text">
         <h2>Insumos Empaque</h2>
-        <p class="status alert">Alertas</p>
+        <p class="alert">Alertas</p>
       </div>
       <div class="icon">📦</div>
     </div>
 
-    <div class="home-card lluvia small" onclick="irLluvia()">
-      <div>
-        <h3>🌧 Lluvia</h3>
-        <p class="mini" id="lluviaResumen">—</p>
-        <p class="mini alerta-home" id="lluviaAlerta" style="display:none"></p>
+    <!-- LLUVIA -->
+    <div class="card rain">
+      <div class="card-text">
+        <h2>🌧 Lluvia</h2>
+        <p>enero · 149 mm · 5 días</p>
+        <p class="warning">⚠ 15–18 ene (4 días)</p>
       </div>
     </div>
 
-  </section>
+  </main>
 
-  <!-- ================= CAMPO ================= -->
-  <section id="campo" style="display:none">
-    <h2>Insumos Campo</h2>
-    <div id="listaCampo" class="lista"></div>
-  </section>
-
-  <!-- ================= EMPAQUE ================= -->
-  <section id="empaque" style="display:none">
-    <h2>Insumos Empaque</h2>
-    <div id="listaEmpaque" class="lista"></div>
-  </section>
-
-  <!-- ================= DETALLE ================= -->
-  <section id="detalle" style="display:none"></section>
-
-  <!-- ================= LLUVIA ================= -->
-  <section id="lluvia" style="display:none">
-
-    <div class="filtros">
-      <select id="anio"></select>
-      <select id="mes"></select>
-    </div>
-
-    <div id="alertaLluvia" class="alerta" style="display:none"></div>
-
-    <div id="calendario" class="calendario"></div>
-
-    <div class="card">
-      <p>Total del mes: <strong><span id="totalMes">0</span> mm</strong></p>
-      <p>Días con lluvia: <strong><span id="diasLluvia">0</span></strong></p>
-    </div>
-
-  </section>
-
-</main>
-
-<!-- ================= MODAL ================= -->
-<div class="modal" id="modal" style="display:none">
-  <div class="modal-content">
-    <h2 id="modalTitulo"></h2>
-
-    <input type="number" id="modalCantidad" placeholder="Cantidad">
-
-    <select id="modalFinca"></select>
-    <select id="modalLote"></select>
-
-    <div class="actions">
-      <button class="btn gray" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn blue" onclick="confirmarModal()">Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- JS (versión forzada para romper cache) -->
-<script src="app.js?v=99"></script>
-
+  <!-- JS -->
+  <script src="app.js"></script>
 </body>
 </html>
