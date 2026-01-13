@@ -4,181 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LimonerApp</title>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-    }
-
-    header {
-      padding: 16px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      background: #020617;
-    }
-
-    main {
-      padding: 16px;
-    }
-
-    button {
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .add-btn {
-      width: 100%;
-      background: #22c55e;
-      color: #052e16;
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
-
-    .card {
-      background: #020617;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-
-    .card h3 {
-      margin: 0 0 6px 0;
-      font-size: 18px;
-    }
-
-    .card p {
-      margin: 0 0 10px 0;
-      color: #cbd5f5;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .plus { background: #16a34a; color: white; }
-    .minus { background: #eab308; color: #422006; }
-    .delete { background: #dc2626; color: white; }
-
-    dialog {
-      border: none;
-      border-radius: 12px;
-      padding: 16px;
-      width: 90%;
-      max-width: 400px;
-      background: #020617;
-      color: white;
-    }
-
-    dialog input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-      border: none;
-      font-size: 16px;
-    }
-
-    dialog button {
-      width: 100%;
-      background: #22c55e;
-      color: #052e16;
-      font-size: 18px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <header>🍋 LimonerApp</header>
+
+  <header>
+    🍋 LimonerApp
+  </header>
 
   <main>
-    <button class="add-btn" onclick="openDialog()">➕ Agregar insumo</button>
-    <div id="listado"></div>
+    <button id="addBtn" class="add-btn">➕ Agregar insumo</button>
+    <div id="items"></div>
   </main>
 
-  <dialog id="dialogo">
-    <h3>Nuevo insumo</h3>
-    <input id="nombre" placeholder="Nombre del insumo" />
-    <input id="cantidad" type="number" placeholder="Cantidad inicial" />
-    <input id="unidad" placeholder="Unidad (kg, lts, un)" />
-    <button onclick="guardar()">Guardar</button>
-  </dialog>
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Nuevo insumo</h2>
 
-  <script>
-    const listado = document.getElementById("listado");
-    const dialogo = document.getElementById("dialogo");
+      <input type="text" id="nameInput" placeholder="Nombre del insumo" />
 
-    function cargar() {
-      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
-      listado.innerHTML = "";
+      <select id="unitInput">
+        <option value="">Seleccionar unidad</option>
+        <option value="lts">Litros</option>
+        <option value="kgs">Kilos</option>
+        <option value="unidades">Unidades</option>
+        <option value="bolsas">Bolsas</option>
+        <option value="bins">Bins</option>
+      </select>
 
-      if (datos.length === 0) {
-        listado.innerHTML = "<p>No hay insumos cargados.</p>";
-        return;
-      }
+      <div class="modal-actions">
+        <button id="saveBtn" class="save">Guardar</button>
+        <button id="cancelBtn" class="cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-      datos.forEach((i, index) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <h3>${i.nombre}</h3>
-          <p>${i.cantidad} ${i.unidad}</p>
-          <div class="actions">
-            <button class="plus" onclick="modificar(${index}, 1)">➕</button>
-            <button class="minus" onclick="modificar(${index}, -1)">➖</button>
-            <button class="delete" onclick="eliminar(${index})">🗑️</button>
-          </div>
-        `;
-        listado.appendChild(div);
-      });
-    }
-
-    function openDialog() {
-      dialogo.showModal();
-    }
-
-    function guardar() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const cantidad = parseFloat(document.getElementById("cantidad").value);
-      const unidad = document.getElementById("unidad").value.trim();
-
-      if (!nombre || isNaN(cantidad) || !unidad) return;
-
-      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
-      datos.push({ nombre, cantidad, unidad });
-      localStorage.setItem("insumos", JSON.stringify(datos));
-
-      dialogo.close();
-      document.getElementById("nombre").value = "";
-      document.getElementById("cantidad").value = "";
-      document.getElementById("unidad").value = "";
-
-      cargar();
-    }
-
-    function modificar(index, delta) {
-      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
-      datos[index].cantidad += delta;
-      if (datos[index].cantidad < 0) datos[index].cantidad = 0;
-      localStorage.setItem("insumos", JSON.stringify(datos));
-      cargar();
-    }
-
-    function eliminar(index) {
-      const datos = JSON.parse(localStorage.getItem("insumos")) || [];
-      datos.splice(index, 1);
-      localStorage.setItem("insumos", JSON.stringify(datos));
-      cargar();
-    }
-
-    cargar();
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
