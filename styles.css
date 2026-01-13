@@ -25,69 +25,67 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 25px;
+  padding: 22px;
   border-radius: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   cursor: pointer;
   background: rgba(255,255,255,0.06);
 }
 
-.home-card h2 {
-  margin: 0 0 8px 0;
+.home-card.small {
+  padding: 14px 18px;
+  border-radius: 16px;
 }
 
-.home-card .big {
+.home-card h2, h3 {
+  margin: 0 0 6px 0;
+}
+
+.big {
   font-size: 28px;
   font-weight: 700;
+}
+
+.mini {
+  font-size: 14px;
+  opacity: 0.85;
 }
 
 .status.ok { color: #7cff9a; }
 .status.alert { color: #ffb26d; }
 
 .icon {
-  font-size: 48px;
+  font-size: 46px;
 }
 
-/* LISTAS */
-.card {
+/* CALENDARIO */
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.dia {
+  padding: 10px 0;
+  border-radius: 10px;
   background: rgba(255,255,255,0.06);
-  border-radius: 18px;
-  padding: 20px;
-  margin-bottom: 15px;
-}
-
-.insumo {
-  display: flex;
-  justify-content: space-between;
+  text-align: center;
+  font-size: 13px;
   cursor: pointer;
 }
 
-.label { opacity: 0.6; }
-
-.value {
-  font-size: 36px;
-  font-weight: 700;
-  color: #7cff9a;
+.dia.lluvia {
+  background: rgba(80,180,255,0.35);
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
+/* CARDS */
+.card {
+  background: rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 15px;
 }
-
-/* BOTONES */
-.btn {
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
-  flex: 1;
-}
-
-.green { background: linear-gradient(#6dff8b,#3fdc6c); }
-.orange { background: linear-gradient(#ffb26d,#ff8c3f); }
-.gray { background: rgba(255,255,255,0.2); color:#ccc; }
 
 /* MODAL */
 .modal {
@@ -106,12 +104,20 @@ body {
   width: 90%;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+/* BOTONES */
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
 }
 
-li {
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+.btn {
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  flex: 1;
 }
+
+.blue { background: linear-gradient(#6da8ff,#3f7cdc); }
+.gray { background: rgba(255,255,255,0.2); color:#ccc; }
