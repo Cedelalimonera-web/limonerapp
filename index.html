@@ -3,82 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Limonerapp</title>
+  <title>LimonerApp</title>
 
-  <!-- Estilos -->
+  <!-- IMPORTANTE: sin / adelante -->
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Fuente (si ya la usabas, no rompe nada) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    🍋 Limonerapp
+  <header class="top-bar">
+    🍋 <span>LimonerApp</span>
   </header>
 
-  <!-- ========================= -->
-  <!-- PANTALLA LISTA INSUMOS -->
-  <!-- ========================= -->
-  <section id="pantalla-lista">
-
+  <main class="container">
     <h1>Insumos Campo</h1>
 
-    <!-- LISTA DINÁMICA -->
-    <div id="lista-insumos"></div>
-
-    <!-- BOTÓN AGREGAR (si lo usás) -->
-    <button class="btn-primary" onclick="alert('Agregar insumo se verá luego')">
+    <button id="btnAdd" class="primary-btn">
       + Agregar insumo
     </button>
 
-  </section>
-
-  <!-- ========================= -->
-  <!-- PANTALLA DETALLE INSUMO -->
-  <!-- ========================= -->
-  <section id="pantalla-detalle" style="display:none">
-
-    <button id="btn-volver" class="btn-link">
-      ← Volver
-    </button>
-
-    <h1 id="detalle-nombre">INSUMO</h1>
-
-    <div class="card">
-      <p id="detalle-stock-valor" class="stock-grande">
-        0 kg
-      </p>
-
-      <!-- Barra stock (si el CSS la define) -->
-      <div class="barra-contenedor">
-        <div id="barra-stock" class="barra-stock"></div>
-      </div>
+    <div id="insumosList" class="cards-container">
+      <!-- tarjetas dinámicas -->
     </div>
+  </main>
 
-    <!-- BOTONES -->
-    <div class="botones-accion">
-      <button id="btn-ingresar" class="btn-success">+ Ingresar</button>
-      <button id="btn-usar" class="btn-warning">- Usar</button>
-      <button id="btn-transferir" class="btn-disabled" disabled>
-        Transferir
-      </button>
-    </div>
-
-    <!-- MOVIMIENTOS -->
-    <h2>Últimos movimientos</h2>
-    <div id="lista-movimientos"></div>
-
-  </section>
-
-  <!-- ========================= -->
-  <!-- SCRIPT ÚNICO -->
-  <!-- ========================= -->
+  <!-- IMPORTANTE: sin / adelante -->
   <script src="app.js"></script>
-
 </body>
 </html>
