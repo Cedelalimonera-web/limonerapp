@@ -20,18 +20,10 @@ let state = {
   view: "home",
   selectedId: null,
   filtroUbicacion: "campo",
+  fincaSeleccionada: null,
+  loteSeleccionado: null,
 
-  insumos: JSON.parse(localStorage.getItem("insumos")) || [
-    {
-      id: 1,
-      nombre: "UREA",
-      unidad: "kg",
-      ubicacion: "campo",
-      stock: 2070,
-      minimo: 200,
-      movimientos: []
-    }
-  ]
+  insumos: JSON.parse(localStorage.getItem("insumos")) || []
 };
 
 function save() {
@@ -46,6 +38,9 @@ function render() {
   if (state.view === "home") renderHome();
   if (state.view === "list") renderList();
   if (state.view === "detail") renderDetail();
+  if (state.view === "lotes") renderLotesFincas();
+  if (state.view === "lotesFinca") renderLotesPorFinca();
+  if (state.view === "loteDetalle") renderLoteDetalle();
 }
 
 /* ======================
@@ -73,11 +68,21 @@ function renderHome() {
         📦
       </div>
     </div>
+
+    <div class="card" onclick="goLotes()">
+      <div class="card-row">
+        <div>
+          <div class="big">Lotes</div>
+          <div class="ok">Historial</div>
+        </div>
+        🗺️
+      </div>
+    </div>
   `;
 }
 
 /* ======================
-   LISTADO
+   INSUMOS
 ====================== */
 
 function openList(ubicacion) {
@@ -87,9 +92,7 @@ function openList(ubicacion) {
 }
 
 function renderList() {
-  const lista = state.insumos.filter(
-    i => i.ubicacion === state.filtroUbicacion
-  );
+  const lista = state.insumos.filter(i => i.ubicacion === state.filtroUbicacion);
 
   app.innerHTML = `
     <button class="btn btn-gray" onclick="goHome()">← Volver</button>
@@ -101,16 +104,8 @@ function renderList() {
         <span>${i.stock} ${i.unidad}</span>
       </div>
     `).join("")}
-
-    <button class="btn btn-green btn-full" onclick="addInsumo()">
-      + Agregar insumo
-    </button>
   `;
 }
-
-/* ======================
-   DETALLE INSUMO
-====================== */
 
 function openDetail(id) {
   state.selectedId = id;
@@ -123,30 +118,103 @@ function renderDetail() {
 
   app.innerHTML = `
     <button class="btn btn-gray" onclick="renderList()">← Volver</button>
-
     <h1>${i.nombre}</h1>
-    <p>Ubicación: ${i.ubicacion}</p>
-    <p>Stock mínimo: ${i.minimo}</p>
+    <p>Stock: ${i.stock} ${i.unidad}</p>
+  `;
+}
+
+/* ======================
+   LOTES – PASO 2
+====================== */
+
+function goLotes() {
+  state.view = "lotes";
+  render();
+}
+
+function renderLotesFincas() {
+  app.innerHTML = `
+    <button class="btn btn-gray" onclick="goHome()">← Volver</button>
+    <h1>Fincas</h1>
+
+    ${FINCAS.map(f => `
+      <div class="list-item" onclick="selectFinca('${f}')">
+        ${f}
+      </div>
+    `).join("")}
+  `;
+}
+
+function selectFinca(finca) {
+  state.fincaSeleccionada = finca;
+  state.view = "lotesFinca";
+  render();
+}
+
+function renderLotesPorFinca() {
+  app.innerHTML = `
+    <button class="btn btn-gray" onclick="goLotes()">← Volver</button>
+    <h1>${state.fincaSeleccionada}</h1>
+
+    ${LOTES.map(l => `
+      <div class="list-item" onclick="selectLote('${l}')">
+        ${l}
+      </div>
+    `).join("")}
+  `;
+}
+
+function selectLote(lote) {
+  state.loteSeleccionado = lote;
+  state.view = "loteDetalle";
+  render();
+}
+
+function renderLoteDetalle() {
+  const movimientos = [];
+
+  state.insumos.forEach(insumo => {
+    insumo.movimientos.forEach(m => {
+      if (m.finca === state.fincaSeleccionada && m.lote === state.loteSeleccionado) {
+        movimientos.push({
+          insumo: insumo.nombre,
+          unidad: insumo.unidad,
+          cantidad: m.cantidad,
+          fecha: m.fecha
+        });
+      }
+    });
+  });
+
+  const totales = {};
+  movimientos.forEach(m => {
+    totales[m.insumo] = (totales[m.insumo] || 0) + m.cantidad;
+  });
+
+  app.innerHTML = `
+    <button class="btn btn-gray" onclick="renderLotesPorFinca()">← Volver</button>
+    <h1>${state.fincaSeleccionada} – ${state.loteSeleccionado}</h1>
 
     <div class="card">
-      <div class="stock">${i.stock} ${i.unidad}</div>
-
+      <h3>Totales</h3>
       ${
-        i.ubicacion === "campo"
-          ? `<button class="btn btn-orange btn-full" onclick="abrirModalUso()">− Usar en campo</button>`
-          : ""
+        Object.keys(totales).length === 0
+          ? "<p>Sin movimientos</p>"
+          : Object.entries(totales).map(
+              ([i, v]) => `<p>${i}: <strong>${v}</strong></p>`
+            ).join("")
       }
     </div>
 
     <div class="card">
-      <h3>Últimos movimientos</h3>
+      <h3>Historial</h3>
       ${
-        i.movimientos.length === 0
-          ? "<p>No hay movimientos</p>"
-          : i.movimientos.map(m => `
-              <p style="margin-top:8px">
+        movimientos.length === 0
+          ? "<p>Sin registros</p>"
+          : movimientos.map(m => `
+              <p style="margin-top:6px">
                 🕒 ${m.fecha}<br>
-                ${m.texto}
+                ${m.insumo} – ${m.cantidad} ${m.unidad}
               </p>
             `).join("")
       }
@@ -155,103 +223,8 @@ function renderDetail() {
 }
 
 /* ======================
-   MODAL USO CAMPO
-====================== */
-
-function abrirModalUso() {
-  const modal = document.createElement("div");
-  modal.className = "modal-backdrop";
-
-  modal.innerHTML = `
-    <div class="modal">
-      <h3>Uso de insumo</h3>
-
-      <label>Cantidad</label>
-      <input type="number" id="usoCantidad" min="0" />
-
-      <label>Finca</label>
-      <select id="usoFinca">
-        <option value="">Seleccionar</option>
-        ${FINCAS.map(f => `<option>${f}</option>`).join("")}
-      </select>
-
-      <label>Lote</label>
-      <select id="usoLote">
-        <option value="">Seleccionar</option>
-        ${LOTES.map(l => `<option>${l}</option>`).join("")}
-      </select>
-
-      <div class="modal-actions">
-        <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
-        <button class="btn btn-orange" onclick="confirmarUso()">Confirmar</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-function cerrarModal() {
-  document.querySelector(".modal-backdrop")?.remove();
-}
-
-function confirmarUso() {
-  const cantidad = Number(document.getElementById("usoCantidad").value);
-  const finca = document.getElementById("usoFinca").value;
-  const lote = document.getElementById("usoLote").value;
-
-  const insumo = state.insumos.find(x => x.id === state.selectedId);
-
-  if (!cantidad || cantidad <= 0) {
-    alert("Cantidad inválida");
-    return;
-  }
-  if (!finca || !lote) {
-    alert("Seleccioná finca y lote");
-    return;
-  }
-  if (cantidad > insumo.stock) {
-    alert("Stock insuficiente");
-    return;
-  }
-
-  insumo.stock -= cantidad;
-
-  insumo.movimientos.unshift({
-    fecha: new Date().toLocaleString(),
-    tipo: "uso",
-    cantidad,
-    finca,
-    lote,
-    texto: `Se usaron ${cantidad} ${insumo.unidad} – ${finca} – ${lote}`
-  });
-
-  save();
-  cerrarModal();
-  render();
-}
-
-/* ======================
    OTROS
 ====================== */
-
-function addInsumo() {
-  const nombre = prompt("Nombre del insumo");
-  if (!nombre) return;
-
-  state.insumos.push({
-    id: Date.now(),
-    nombre,
-    unidad: "kg",
-    ubicacion: state.filtroUbicacion,
-    stock: 0,
-    minimo: 0,
-    movimientos: []
-  });
-
-  save();
-  render();
-}
 
 function goHome() {
   state.view = "home";
