@@ -1,20 +1,28 @@
 const app = document.getElementById("app");
 
 /* ======================
-   CONFIGURACIÓN
+   CONFIG
 ====================== */
 
-const FINCAS = [
-  "Finca Juan Luis",
-  "Finca La Limonera",
-  "Finca San Jorge"
-];
-
+const FINCAS = ["Finca Juan Luis", "Finca La Limonera", "Finca San Jorge"];
 const LOTES = Array.from({ length: 20 }, (_, i) => `Lote ${i + 1}`);
 
 /* ======================
-   ESTADO
+   STORAGE SAFE INIT
 ====================== */
+
+let storedInsumos = JSON.parse(localStorage.getItem("insumos"));
+if (!storedInsumos || storedInsumos.length === 0) {
+  storedInsumos = [{
+    id: 1,
+    nombre: "UREA",
+    unidad: "kg",
+    ubicacion: "campo",
+    stock: 2070,
+    minimo: 200,
+    movimientos: []
+  }];
+}
 
 let state = {
   view: "home",
@@ -23,18 +31,7 @@ let state = {
   fincaSeleccionada: null,
   loteSeleccionado: null,
 
-  insumos: JSON.parse(localStorage.getItem("insumos")) || [
-    {
-      id: 1,
-      nombre: "UREA",
-      unidad: "kg",
-      ubicacion: "campo",
-      stock: 2070,
-      minimo: 200,
-      movimientos: []
-    }
-  ],
-
+  insumos: storedInsumos,
   tareas: JSON.parse(localStorage.getItem("tareas")) || []
 };
 
@@ -44,64 +41,21 @@ function save() {
 }
 
 /* ======================
-   RENDER GENERAL
+   RENDER
 ====================== */
 
 function render() {
   if (state.view === "home") renderHome();
   if (state.view === "list") renderList();
   if (state.view === "detail") renderDetail();
-  if (state.view === "lotes") renderFincas();
-  if (state.view === "lotesFinca") renderLotes();
-  if (state.view === "loteDetalle") renderLoteDetalle();
   if (state.view === "tareas") renderTareas();
 }
 
-/* ======================
-   HOME
-====================== */
-
 function renderHome() {
   app.innerHTML = `
-    <div class="card" onclick="openList('campo')">
-      <div class="card-row">
-        <div>
-          <div class="big">Insumos Campo</div>
-          <div class="ok">Stock</div>
-        </div>
-        🌱
-      </div>
-    </div>
-
-    <div class="card" onclick="openList('empaque')">
-      <div class="card-row">
-        <div>
-          <div class="big">Insumos Empaque</div>
-          <div class="warn">Control</div>
-        </div>
-        📦
-      </div>
-    </div>
-
-    <div class="card" onclick="goLotes()">
-      <div class="card-row">
-        <div>
-          <div class="big">Lotes</div>
-          <div class="ok">Historial</div>
-        </div>
-        🗺️
-      </div>
-    </div>
-
-    <div class="card" onclick="goTareas()">
-      <div class="card-row">
-        <div>
-          <div class="big">Tareas</div>
-          <div class="ok">${state.tareas.length} registradas</div>
-        </div>
-        🧑‍🌾
-      </div>
-    </div>
+    <div class="card" onclick="openList('campo')">🌱 Insumos Campo</div>
+    <div class="card" onclick="openList('empaque')">📦 Insumos Empaque</div>
+    <div class="card" onclick="goTareas()">🧑‍🌾 Tareas</div>
   `;
 }
 
@@ -119,19 +73,20 @@ function renderList() {
   const lista = state.insumos.filter(i => i.ubicacion === state.filtroUbicacion);
 
   app.innerHTML = `
-    <button class="btn btn-gray" onclick="goHome()">← Volver</button>
-    <h1>Insumos ${state.filtroUbicacion === "campo" ? "Campo" : "Empaque"}</h1>
+    <button onclick="goHome()">← Volver</button>
+    <h1>Insumos ${state.filtroUbicacion}</h1>
 
     ${
       lista.length === 0
         ? "<p>No hay insumos</p>"
         : lista.map(i => `
             <div class="list-item" onclick="openDetail(${i.id})">
-              <strong>${i.nombre}</strong>
-              <span>${i.stock} ${i.unidad}</span>
+              ${i.nombre} – ${i.stock} ${i.unidad}
             </div>
           `).join("")
     }
+
+    <button onclick="abrirModalInsumo()">+ Agregar insumo</button>
   `;
 }
 
@@ -145,86 +100,71 @@ function renderDetail() {
   const i = state.insumos.find(x => x.id === state.selectedId);
 
   app.innerHTML = `
-    <button class="btn btn-gray" onclick="renderList()">← Volver</button>
+    <button onclick="renderList()">← Volver</button>
     <h1>${i.nombre}</h1>
     <p>Stock: ${i.stock} ${i.unidad}</p>
+    <p>Mínimo: ${i.minimo}</p>
   `;
 }
 
 /* ======================
-   LOTES + TAREAS (sin cambios)
+   MODAL INSUMO
 ====================== */
 
-function goLotes() {
-  state.view = "lotes";
-  render();
-}
+function abrirModalInsumo() {
+  const m = document.createElement("div");
+  m.className = "modal-backdrop";
 
-function renderFincas() {
-  app.innerHTML = `
-    <button class="btn btn-gray" onclick="goHome()">← Volver</button>
-    <h1>Fincas</h1>
-    ${FINCAS.map(f => `<div class="list-item" onclick="selectFinca('${f}')">${f}</div>`).join("")}
-  `;
-}
+  m.innerHTML = `
+    <div class="modal">
+      <h3>Nuevo insumo</h3>
 
-function selectFinca(f) {
-  state.fincaSeleccionada = f;
-  state.view = "lotesFinca";
-  render();
-}
+      <input id="iNombre" placeholder="Nombre" />
+      <input id="iUnidad" placeholder="Unidad (kg, l, u)" />
+      <select id="iUbicacion">
+        <option value="campo">Campo</option>
+        <option value="empaque">Empaque</option>
+      </select>
+      <input id="iStock" type="number" placeholder="Stock inicial" />
+      <input id="iMin" type="number" placeholder="Stock mínimo" />
 
-function renderLotes() {
-  app.innerHTML = `
-    <button class="btn btn-gray" onclick="goLotes()">← Volver</button>
-    <h1>${state.fincaSeleccionada}</h1>
-    ${LOTES.map(l => `<div class="list-item" onclick="selectLote('${l}')">${l}</div>`).join("")}
-  `;
-}
-
-function selectLote(l) {
-  state.loteSeleccionado = l;
-  state.view = "loteDetalle";
-  render();
-}
-
-function renderLoteDetalle() {
-  const movimientosInsumos = [];
-  state.insumos.forEach(insumo => {
-    insumo.movimientos.forEach(m => {
-      if (m.finca === state.fincaSeleccionada && m.lote === state.loteSeleccionado) {
-        movimientosInsumos.push(m);
-      }
-    });
-  });
-
-  const tareasLote = state.tareas.filter(
-    t => t.finca === state.fincaSeleccionada && t.lote === state.loteSeleccionado
-  );
-
-  app.innerHTML = `
-    <button class="btn btn-gray" onclick="renderLotes()">← Volver</button>
-    <h1>${state.fincaSeleccionada} – ${state.loteSeleccionado}</h1>
-
-    <div class="card">
-      <h3>🌱 Insumos</h3>
-      ${
-        movimientosInsumos.length === 0
-          ? "<p>Sin insumos registrados</p>"
-          : movimientosInsumos.map(m => `<p>${m.texto}</p>`).join("")
-      }
-    </div>
-
-    <div class="card">
-      <h3>🧑‍🌾 Tareas</h3>
-      ${
-        tareasLote.length === 0
-          ? "<p>Sin tareas registradas</p>"
-          : tareasLote.map(t => `<p>${t.descripcion}</p>`).join("")
-      }
+      <button onclick="cerrarModal()">Cancelar</button>
+      <button onclick="guardarInsumo()">Guardar</button>
     </div>
   `;
+
+  document.body.appendChild(m);
 }
+
+function guardarInsumo() {
+  const nuevo = {
+    id: Date.now(),
+    nombre: document.getElementById("iNombre").value,
+    unidad: document.getElementById("iUnidad").value,
+    ubicacion: document.getElementById("iUbicacion").value,
+    stock: Number(document.getElementById("iStock").value),
+    minimo: Number(document.getElementById("iMin").value),
+    movimientos: []
+  };
+
+  if (!nuevo.nombre || !nuevo.unidad) {
+    alert("Faltan datos");
+    return;
+  }
+
+  state.insumos.push(nuevo);
+  save();
+  cerrarModal();
+  render();
+}
+
+function cerrarModal() {
+  document.querySelector(".modal-backdrop")?.remove();
+}
+
+/* ======================
+   TAREAS (sin tocar)
+====================== */
 
 function goTareas() {
   state.view = "tareas";
@@ -233,21 +173,16 @@ function goTareas() {
 
 function renderTareas() {
   app.innerHTML = `
-    <button class="btn btn-gray" onclick="goHome()">← Volver</button>
+    <button onclick="goHome()">← Volver</button>
     <h1>Tareas</h1>
 
     ${
       state.tareas.length === 0
         ? "<p>No hay tareas</p>"
         : state.tareas.map(t => `
-            <div class="list-item">
-              <strong>${t.descripcion}</strong><br>
-              ${t.finca} – ${t.lote}
-            </div>
+            <div>${t.descripcion} – ${t.finca} ${t.lote}</div>
           `).join("")
     }
-
-    <button class="btn btn-green btn-full" onclick="abrirModalTarea()">+ Agregar tarea</button>
   `;
 }
 
@@ -259,9 +194,5 @@ function goHome() {
   state.view = "home";
   render();
 }
-
-/* ======================
-   INIT
-====================== */
 
 render();
