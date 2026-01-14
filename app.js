@@ -141,7 +141,7 @@ function renderDetail() {
 }
 
 /* ======================
-   LOTES (sin cambios)
+   LOTES – PASO 2 + 3
 ====================== */
 
 function goLotes() {
@@ -178,29 +178,55 @@ function selectLote(l) {
 }
 
 function renderLoteDetalle() {
-  const movimientos = [];
-
+  // INSUMOS
+  const movimientosInsumos = [];
   state.insumos.forEach(insumo => {
     insumo.movimientos.forEach(m => {
       if (m.finca === state.fincaSeleccionada && m.lote === state.loteSeleccionado) {
-        movimientos.push(m);
+        movimientosInsumos.push(m);
       }
     });
   });
 
+  // TAREAS
+  const tareasLote = state.tareas.filter(
+    t => t.finca === state.fincaSeleccionada && t.lote === state.loteSeleccionado
+  );
+
   app.innerHTML = `
     <button class="btn btn-gray" onclick="renderLotes()">← Volver</button>
     <h1>${state.fincaSeleccionada} – ${state.loteSeleccionado}</h1>
-    ${
-      movimientos.length === 0
-        ? "<p>Sin movimientos</p>"
-        : movimientos.map(m => `<p>${m.texto}</p>`).join("")
-    }
+
+    <div class="card">
+      <h3>🌱 Insumos</h3>
+      ${
+        movimientosInsumos.length === 0
+          ? "<p>Sin insumos registrados</p>"
+          : movimientosInsumos.map(m => `
+              <p>🕒 ${m.fecha}<br>${m.texto}</p>
+            `).join("")
+      }
+    </div>
+
+    <div class="card">
+      <h3>🧑‍🌾 Tareas</h3>
+      ${
+        tareasLote.length === 0
+          ? "<p>Sin tareas registradas</p>"
+          : tareasLote.map(t => `
+              <p>
+                🕒 ${t.fecha}<br>
+                <strong>${t.descripcion}</strong><br>
+                👷 ${t.personas} | ⏱ ${t.horasH}h | 🚜 ${t.horasM}h | ⛽ ${t.gasoil} L
+              </p>
+            `).join("")
+      }
+    </div>
   `;
 }
 
 /* ======================
-   TAREAS – PASO 3
+   TAREAS
 ====================== */
 
 function goTareas() {
@@ -215,7 +241,7 @@ function renderTareas() {
 
     ${
       state.tareas.length === 0
-        ? "<p>No hay tareas registradas</p>"
+        ? "<p>No hay tareas</p>"
         : state.tareas.map(t => `
             <div class="list-item">
               <strong>${t.descripcion}</strong><br>
@@ -241,16 +267,10 @@ function abrirModalTarea() {
       <input id="tDesc" />
 
       <label>Finca</label>
-      <select id="tFinca">
-        <option value="">Seleccionar</option>
-        ${FINCAS.map(f => `<option>${f}</option>`).join("")}
-      </select>
+      <select id="tFinca">${FINCAS.map(f => `<option>${f}</option>`).join("")}</select>
 
       <label>Lote</label>
-      <select id="tLote">
-        <option value="">Seleccionar</option>
-        ${LOTES.map(l => `<option>${l}</option>`).join("")}
-      </select>
+      <select id="tLote">${LOTES.map(l => `<option>${l}</option>`).join("")}</select>
 
       <label>Personas</label>
       <input type="number" id="tPers" />
@@ -286,8 +306,8 @@ function guardarTarea() {
     fecha: new Date().toLocaleString()
   };
 
-  if (!tarea.descripcion || !tarea.finca || !tarea.lote) {
-    alert("Completá descripción, finca y lote");
+  if (!tarea.descripcion) {
+    alert("Falta descripción");
     return;
   }
 
