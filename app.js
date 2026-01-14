@@ -23,7 +23,18 @@ let state = {
   fincaSeleccionada: null,
   loteSeleccionado: null,
 
-  insumos: JSON.parse(localStorage.getItem("insumos")) || [],
+  insumos: JSON.parse(localStorage.getItem("insumos")) || [
+    {
+      id: 1,
+      nombre: "UREA",
+      unidad: "kg",
+      ubicacion: "campo",
+      stock: 2070,
+      minimo: 200,
+      movimientos: []
+    }
+  ],
+
   tareas: JSON.parse(localStorage.getItem("tareas")) || []
 };
 
@@ -95,7 +106,7 @@ function renderHome() {
 }
 
 /* ======================
-   INSUMOS (sin cambios)
+   INSUMOS
 ====================== */
 
 function openList(ubicacion) {
@@ -141,7 +152,7 @@ function renderDetail() {
 }
 
 /* ======================
-   LOTES – PASO 2 + 3
+   LOTES + TAREAS (sin cambios)
 ====================== */
 
 function goLotes() {
@@ -178,7 +189,6 @@ function selectLote(l) {
 }
 
 function renderLoteDetalle() {
-  // INSUMOS
   const movimientosInsumos = [];
   state.insumos.forEach(insumo => {
     insumo.movimientos.forEach(m => {
@@ -188,7 +198,6 @@ function renderLoteDetalle() {
     });
   });
 
-  // TAREAS
   const tareasLote = state.tareas.filter(
     t => t.finca === state.fincaSeleccionada && t.lote === state.loteSeleccionado
   );
@@ -202,9 +211,7 @@ function renderLoteDetalle() {
       ${
         movimientosInsumos.length === 0
           ? "<p>Sin insumos registrados</p>"
-          : movimientosInsumos.map(m => `
-              <p>🕒 ${m.fecha}<br>${m.texto}</p>
-            `).join("")
+          : movimientosInsumos.map(m => `<p>${m.texto}</p>`).join("")
       }
     </div>
 
@@ -213,21 +220,11 @@ function renderLoteDetalle() {
       ${
         tareasLote.length === 0
           ? "<p>Sin tareas registradas</p>"
-          : tareasLote.map(t => `
-              <p>
-                🕒 ${t.fecha}<br>
-                <strong>${t.descripcion}</strong><br>
-                👷 ${t.personas} | ⏱ ${t.horasH}h | 🚜 ${t.horasM}h | ⛽ ${t.gasoil} L
-              </p>
-            `).join("")
+          : tareasLote.map(t => `<p>${t.descripcion}</p>`).join("")
       }
     </div>
   `;
 }
-
-/* ======================
-   TAREAS
-====================== */
 
 function goTareas() {
   state.view = "tareas";
@@ -245,80 +242,13 @@ function renderTareas() {
         : state.tareas.map(t => `
             <div class="list-item">
               <strong>${t.descripcion}</strong><br>
-              ${t.finca} – ${t.lote}<br>
-              👷 ${t.personas} | ⏱ ${t.horasH}h | 🚜 ${t.horasM}h | ⛽ ${t.gasoil} L
+              ${t.finca} – ${t.lote}
             </div>
           `).join("")
     }
 
     <button class="btn btn-green btn-full" onclick="abrirModalTarea()">+ Agregar tarea</button>
   `;
-}
-
-function abrirModalTarea() {
-  const modal = document.createElement("div");
-  modal.className = "modal-backdrop";
-
-  modal.innerHTML = `
-    <div class="modal">
-      <h3>Nueva tarea</h3>
-
-      <label>Descripción</label>
-      <input id="tDesc" />
-
-      <label>Finca</label>
-      <select id="tFinca">${FINCAS.map(f => `<option>${f}</option>`).join("")}</select>
-
-      <label>Lote</label>
-      <select id="tLote">${LOTES.map(l => `<option>${l}</option>`).join("")}</select>
-
-      <label>Personas</label>
-      <input type="number" id="tPers" />
-
-      <label>Horas hombre</label>
-      <input type="number" id="tHH" />
-
-      <label>Horas maquinaria</label>
-      <input type="number" id="tHM" />
-
-      <label>Litros gasoil</label>
-      <input type="number" id="tGas" />
-
-      <div class="modal-actions">
-        <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
-        <button class="btn btn-green" onclick="guardarTarea()">Guardar</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-}
-
-function guardarTarea() {
-  const tarea = {
-    descripcion: document.getElementById("tDesc").value,
-    finca: document.getElementById("tFinca").value,
-    lote: document.getElementById("tLote").value,
-    personas: Number(document.getElementById("tPers").value),
-    horasH: Number(document.getElementById("tHH").value),
-    horasM: Number(document.getElementById("tHM").value),
-    gasoil: Number(document.getElementById("tGas").value),
-    fecha: new Date().toLocaleString()
-  };
-
-  if (!tarea.descripcion) {
-    alert("Falta descripción");
-    return;
-  }
-
-  state.tareas.unshift(tarea);
-  save();
-  cerrarModal();
-  render();
-}
-
-function cerrarModal() {
-  document.querySelector(".modal-backdrop")?.remove();
 }
 
 /* ======================
