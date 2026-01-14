@@ -3,45 +3,47 @@ const app = document.getElementById("app");
 let state = {
   view: "home",
   selectedId: null,
+  filtroUbicacion: "campo",
+
   insumos: JSON.parse(localStorage.getItem("insumos")) || [
     {
       id: 1,
       nombre: "UREA",
       unidad: "kg",
+      ubicacion: "campo",
       stock: 2070,
       minimo: 200,
-      movimientos: [
-        { fecha: "13/01/2026 01:07", texto: "Se usaron 30 kg en Finca Juan Luis – Lote 1" }
-      ]
+      movimientos: []
+    },
+    {
+      id: 2,
+      nombre: "Cajas cartón 18kg",
+      unidad: "u",
+      ubicacion: "empaque",
+      stock: 3200,
+      minimo: 500,
+      movimientos: []
     }
-  ],
-  lluvia: {
-    mes: "Enero",
-    anio: 2026,
-    diasConLluvia: [15,16,17,18,19],
-    totalMm: 65,
-    alerta: "Lluvia prolongada del 15 al 18"
-  }
+  ]
 };
 
 function save() {
   localStorage.setItem("insumos", JSON.stringify(state.insumos));
 }
 
-/* -------- RENDER GENERAL -------- */
+/* ---------- RENDER ---------- */
 
 function render() {
   if (state.view === "home") renderHome();
   if (state.view === "list") renderList();
   if (state.view === "detail") renderDetail();
-  if (state.view === "lluvia") renderLluvia();
 }
 
-/* -------- HOME -------- */
+/* ---------- HOME ---------- */
 
 function renderHome() {
   app.innerHTML = `
-    <div class="card" onclick="go('list')">
+    <div class="card" onclick="openList('campo')">
       <div class="card-row">
         <div>
           <div class="big">Insumos Campo</div>
@@ -51,29 +53,40 @@ function renderHome() {
       </div>
     </div>
 
-    <div class="card" onclick="go('lluvia')">
+    <div class="card" onclick="openList('empaque')">
       <div class="card-row">
         <div>
-          <div class="big">Lluvia</div>
-          <div class="warn">${state.lluvia.alerta}</div>
+          <div class="big">Insumos Empaque</div>
+          <div class="warn">Controlar stock</div>
         </div>
-        🌧️
+        📦
       </div>
     </div>
   `;
 }
 
-/* -------- INSUMOS -------- */
+/* ---------- LISTADO ---------- */
+
+function openList(ubicacion) {
+  state.filtroUbicacion = ubicacion;
+  state.view = "list";
+  render();
+}
 
 function renderList() {
-  app.innerHTML = `
-    <button class="btn btn-gray" onclick="go('home')">← Volver</button>
-    <h1>Insumos Campo</h1>
+  const lista = state.insumos.filter(i => i.ubicacion === state.filtroUbicacion);
 
-    ${state.insumos.map(i => `
+  app.innerHTML = `
+    <button class="btn btn-gray" onclick="goHome()">← Volver</button>
+    <h1>Insumos ${state.filtroUbicacion === "campo" ? "Campo" : "Empaque"}</h1>
+
+    ${lista.map(i => `
       <div class="list-item" onclick="openDetail(${i.id})">
-        <strong>${i.nombre}</strong>
-        <span>Stock: ${i.stock} ${i.unidad}</span>
+        <div>
+          <strong>${i.nombre}</strong><br>
+          <span class="tag">${i.ubicacion}</span>
+        </div>
+        <span>${i.stock} ${i.unidad}</span>
       </div>
     `).join("")}
 
@@ -81,13 +94,23 @@ function renderList() {
   `;
 }
 
+/* ---------- DETALLE ---------- */
+
+function openDetail(id) {
+  state.selectedId = id;
+  state.view = "detail";
+  render();
+}
+
 function renderDetail() {
   const i = state.insumos.find(x => x.id === state.selectedId);
   const pct = Math.min((i.stock / 5000) * 100, 100);
 
   app.innerHTML = `
-    <button class="btn btn-gray" onclick="go('list')">← Volver</button>
+    <button class="btn btn-gray" onclick="renderList()">← Volver</button>
+
     <h1>${i.nombre}</h1>
+    <span class="tag">${i.ubicacion}</span>
     <p>⚠️ Stock mínimo: ${i.minimo}</p>
 
     <div class="card">
@@ -100,52 +123,13 @@ function renderDetail() {
         <button class="btn btn-gray">↔ Transferir</button>
       </div>
     </div>
-
-    <div class="card">
-      <h3>Últimos movimientos</h3>
-      ${i.movimientos.map(m => `
-        <p style="margin-top:8px">🕒 ${m.fecha} — ${m.texto}</p>
-      `).join("")}
-    </div>
   `;
 }
 
-/* -------- LLUVIA -------- */
+/* ---------- ACCIONES ---------- */
 
-function renderLluvia() {
-  const dias = Array.from({length:31},(_,i)=>i+1);
-
-  app.innerHTML = `
-    <button class="btn btn-gray" onclick="go('home')">← Volver</button>
-    <h1>Lluvia – ${state.lluvia.mes} ${state.lluvia.anio}</h1>
-
-    <div class="card warn">⚠️ ${state.lluvia.alerta}</div>
-
-    <div class="calendar">
-      ${dias.map(d => `
-        <div class="day ${state.lluvia.diasConLluvia.includes(d) ? "rain":""}">
-          ${d}
-        </div>
-      `).join("")}
-    </div>
-
-    <div class="card">
-      <p>Total mes: <strong>${state.lluvia.totalMm} mm</strong></p>
-      <p>Días con lluvia: <strong>${state.lluvia.diasConLluvia.length}</strong></p>
-    </div>
-  `;
-}
-
-/* -------- ACCIONES -------- */
-
-function go(v) {
-  state.view = v;
-  render();
-}
-
-function openDetail(id) {
-  state.selectedId = id;
-  state.view = "detail";
+function goHome() {
+  state.view = "home";
   render();
 }
 
@@ -156,7 +140,8 @@ function addInsumo() {
   state.insumos.push({
     id: Date.now(),
     nombre,
-    unidad: "kg",
+    unidad: "u",
+    ubicacion: state.filtroUbicacion,
     stock: 0,
     minimo: 0,
     movimientos: []
@@ -173,13 +158,6 @@ function movimiento(tipo) {
 
   if (tipo === "uso") i.stock -= cant;
   if (tipo === "ingreso") i.stock += cant;
-
-  i.movimientos.unshift({
-    fecha: new Date().toLocaleString(),
-    texto: tipo === "uso"
-      ? `Se usaron ${cant} ${i.unidad}`
-      : `Se ingresaron ${cant} ${i.unidad}`
-  });
 
   save();
   render();
