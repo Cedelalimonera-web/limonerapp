@@ -1,7 +1,7 @@
 const app = document.getElementById("app");
 
 /* ======================
-   CONFIGURACIÓN BASE
+   CONFIGURACIÓN
 ====================== */
 
 const FINCAS = [
@@ -133,7 +133,7 @@ function renderDetail() {
 
       ${
         i.ubicacion === "campo"
-          ? `<button class="btn btn-orange btn-full" onclick="usarInsumoCampo()">− Usar en campo</button>`
+          ? `<button class="btn btn-orange btn-full" onclick="abrirModalUso()">− Usar en campo</button>`
           : ""
       }
     </div>
@@ -155,33 +155,63 @@ function renderDetail() {
 }
 
 /* ======================
-   USO POR FINCA Y LOTE
+   MODAL USO CAMPO
 ====================== */
 
-function usarInsumoCampo() {
+function abrirModalUso() {
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>Uso de insumo</h3>
+
+      <label>Cantidad</label>
+      <input type="number" id="usoCantidad" min="0" />
+
+      <label>Finca</label>
+      <select id="usoFinca">
+        <option value="">Seleccionar</option>
+        ${FINCAS.map(f => `<option>${f}</option>`).join("")}
+      </select>
+
+      <label>Lote</label>
+      <select id="usoLote">
+        <option value="">Seleccionar</option>
+        ${LOTES.map(l => `<option>${l}</option>`).join("")}
+      </select>
+
+      <div class="modal-actions">
+        <button class="btn btn-gray" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-orange" onclick="confirmarUso()">Confirmar</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function cerrarModal() {
+  document.querySelector(".modal-backdrop")?.remove();
+}
+
+function confirmarUso() {
+  const cantidad = Number(document.getElementById("usoCantidad").value);
+  const finca = document.getElementById("usoFinca").value;
+  const lote = document.getElementById("usoLote").value;
+
   const insumo = state.insumos.find(x => x.id === state.selectedId);
 
-  const cantidad = Number(prompt("Cantidad a usar"));
-  if (!cantidad || cantidad <= 0) return;
-
+  if (!cantidad || cantidad <= 0) {
+    alert("Cantidad inválida");
+    return;
+  }
+  if (!finca || !lote) {
+    alert("Seleccioná finca y lote");
+    return;
+  }
   if (cantidad > insumo.stock) {
     alert("Stock insuficiente");
-    return;
-  }
-
-  const finca = prompt(
-    "Elegí la finca:\n" + FINCAS.join("\n")
-  );
-  if (!FINCAS.includes(finca)) {
-    alert("Finca inválida");
-    return;
-  }
-
-  const lote = prompt(
-    "Elegí el lote:\n" + LOTES.join("\n")
-  );
-  if (!LOTES.includes(lote)) {
-    alert("Lote inválido");
     return;
   }
 
@@ -197,6 +227,7 @@ function usarInsumoCampo() {
   });
 
   save();
+  cerrarModal();
   render();
 }
 
